@@ -1,0 +1,47 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+__pycache__/
+*.pyc
+.venv/
+/artifacts/
+.run/
+/WIP.md
+# Android build outputs, caches, machine-local SDK path, IDE.
+*.apk
+*.aab
+build/
+.gradle/
+local.properties
+.idea/
+*.iml
+# Env files.
+.env
+.env.*
+
+# Per-chat working notes: the folder exists in the repo, its contents never do.
+/agentbook/*
+!/agentbook/.gitkeep
+
+# Personal data and machine state: notebook weeklies, runtime state, models, keys, local databases.
+# notebook/user.md ships as an empty placeholder; `make install` marks it skip-worktree so
+# the real details you write there stay local.
+/notebook/*
+!/notebook/.gitkeep
+!/notebook/user.md
+/.run/
+*.gguf
+*.onnx
+*.keystore
+*.jks
+*.pem
+*.p12
+*.key
+*.enc
+*.db
+*.sqlite
+
+# Agent-tool attachments and local tool settings.
+.codex-attachments/
+.claude/settings.local.json

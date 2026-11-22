@@ -1,0 +1,157 @@
+<resources>
+    <style name="Theme.Terminus" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/t_ink</item>
+        <item name="colorOnPrimary">@color/t_window</item>
+        <item name="colorSurface">@color/t_window</item>
+        <item name="colorOnSurface">@color/t_ink</item>
+        <item name="android:windowBackground">@color/t_window</item>
+        <item name="android:textColorPrimary">@color/t_ink</item>
+        <item name="android:statusBarColor">@color/t_window</item>
+        <item name="android:navigationBarColor">@color/t_window</item>
+        <!-- Selection pill is the default Material3 icon indicator, tinted
+             via colorSecondaryContainer (t_chip). No full-item background. -->
+        <item name="colorSecondaryContainer">@color/t_chip</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+    <style name="CreamBottomSheet" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/CreamSheetStyle</item>
+    </style>
+    <style name="CreamSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="android:background">@drawable/sheet_bg</item>
+    </style>
+    <style name="CreamDialog" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="colorSurface">@color/t_surface</item>
+        <item name="colorOnSurface">@color/t_ink</item>
+        <item name="android:textColorPrimary">@color/t_ink</item>
+    </style>
+
+    <style name="SettingsSectionHeader">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/field_bg</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+    <style name="SettingsSectionTitle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/t_ink</item>
+    </style>
+    <style name="SettingsSectionArrow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/t_muted</item>
+    </style>
+    <style name="SettingsChoiceRow">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/field_bg</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+    <style name="SettingsRowLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/t_muted</item>
+    </style>
+    <style name="SettingsRowValue">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/t_ink</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">middle</item>
+    </style>
+    <style name="SettingsRowArrow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/t_muted</item>
+    </style>
+    <!-- Settings sheet: one card per section (icon tile, title, live summary, chevron). -->
+    <style name="SettingsCard">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:background">@drawable/settings_card</item>
+    </style>
+    <style name="SettingsCardHeader">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <style name="SettingsSectionIcon">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/settings_icon_tile</item>
+        <item name="android:textSize">@dimen/ts_lead</item>
+        <item name="android:layout_marginEnd">12dp</item>
+    </style>
+    <style name="SettingsCardTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/ts_body</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/t_ink</item>
+    </style>
+    <style name="SettingsSectionSummary">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:textSize">@dimen/ts_caption</item>
+        <item name="android:textColor">@color/t_muted</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+    <!-- Row inside a card: flat, divided from the header and each other by a hairline. -->
+    <style name="SettingsCardRow">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+    <style name="SettingsFieldLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">14dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:textSize">@dimen/ts_caption</item>
+        <item name="android:textColor">@color/t_muted</item>
+    </style>
+</resources>

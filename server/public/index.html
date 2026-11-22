@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>terminus</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23262220'/%3E%3Ccircle cx='50' cy='50' r='16' fill='%23ECE7DA'/%3E%3C/svg%3E">
+<style>
+  :root { --ink:#262220; --paper:#ECE7DA; --card:#F5F1E6; --line:#D8D1C0; --muted:#6B645A; --red:#B3372F; --green:#2E7D4F; }
+  * { box-sizing:border-box; }
+  body { max-width:720px; margin:0 auto; padding:16px 16px 48px; color:var(--ink); background:var(--paper); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  header { display:flex; align-items:center; gap:10px; margin-bottom:2px; }
+  h1 { font-size:22px; margin:0; font-weight:700; }
+  .sub { font-size:12px; color:var(--muted); margin:0 0 14px; }
+  #refresh { margin-left:auto; }
+  #tabs { display:flex; gap:8px; margin-bottom:14px; }
+  #tabs span, #tabs a { border:1px solid var(--line); border-radius:20px; background:var(--card); color:var(--ink); font-size:12px; padding:8px 16px; text-decoration:none; }
+  #tabs .on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  button { border:1px solid var(--line); border-radius:20px; background:var(--card); color:var(--ink); font-family:inherit; font-size:12px; padding:8px 14px; cursor:pointer; }
+  button:active { transform:scale(.97); }
+  #refresh { border-radius:50%; width:40px; height:40px; padding:0; font-size:16px; }
+  #repo-icon { border-radius:50%; width:40px; height:40px; padding:0; font-size:16px; margin-left:auto; }
+  header #refresh { margin-left:0; }
+  #repo-icon[hidden] { display:none; }
+  #upload-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:12px; }
+  #upload-pick { border:1px solid var(--line); border-radius:20px; background:var(--paper); color:var(--ink); font-size:12px; padding:8px 14px; cursor:pointer; white-space:nowrap; }
+  #upload-pick:active { transform:scale(.97); }
+  #upload-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); font-size:12px; }
+  #upload-btn { background:var(--ink); color:var(--paper); border:none; border-radius:20px; font-weight:700; }
+  #upload-msg { font-size:11px; color:var(--muted); }
+  #search { width:100%; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--ink); font-family:inherit; font-size:13px; padding:10px 14px; margin-bottom:10px; }
+  #chips { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:2px; }
+  #chips button.on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .day { display:block; margin:20px 0 10px; }
+  .day summary { display:flex; align-items:baseline; cursor:pointer; list-style:none; }
+  .day summary::-webkit-details-marker { display:none; }
+  .day h2 { font-size:15px; margin:0; }
+  .day span { margin-left:auto; font-size:11px; color:var(--muted); }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .dirrow { display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); text-decoration:none; margin-bottom:6px; font-size:14px; }
+  .dirrow:active { transform:scale(.99); }
+  .dirrow .n { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dirrow .c { opacity:.55; font-size:16px; }
+  .card { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card); color:var(--ink); text-decoration:none; display:flex; flex-direction:column; }
+  .thumb { width:100%; height:120px; object-fit:cover; display:block; background:#E3DCCB; border:none; }
+  .aud { height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:#E3DCCB; color:var(--ink); }
+  .aud audio { width:90%; height:32px; }
+  .aud .dur { font-size:11px; color:var(--muted); }
+  .doc { height:120px; display:flex; align-items:center; justify-content:center; font-size:30px; background:#E3DCCB; }
+  .info { padding:8px 10px 4px; }
+  .name { font-size:11px; word-break:break-all; }
+  .sub2 { font-size:10px; color:var(--muted); margin-top:2px; }
+  .row { display:flex; gap:6px; padding:6px 8px 10px; }
+  .row button { flex:1; font-size:11px; padding:6px 4px; }
+  .row .del { color:var(--red); }
+  #empty { color:var(--muted); border:1px dashed var(--line); border-radius:12px; padding:18px; font-size:12px; }
+  #error { color:var(--red); background:var(--card); border:1px solid var(--red); border-radius:12px; padding:12px 14px; font-size:12px; }
+  #meta { font-size:11px; color:var(--muted); margin:0 0 4px; }
+  #preview { position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(38,34,32,.9); z-index:10; }
+  #preview.open { display:grid; }
+  #preview img { max-width:96vw; max-height:90vh; object-fit:contain; border-radius:12px; }
+  #close-preview { position:fixed; top:14px; right:14px; }
+  #reader { position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(38,34,32,.9); z-index:10; }
+  #reader.open { display:grid; }
+  #reader-box { background:var(--card); border-radius:12px; max-width:92vw; max-height:84vh; width:560px; display:flex; flex-direction:column; overflow:hidden; }
+  #reader-bar { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--line); }
+  #reader-name { flex:1; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #reader-text { margin:0; padding:12px; overflow:auto; font-size:12px; white-space:pre-wrap; word-break:break-word; }
+  #token-modal { position:fixed; inset:0; display:none; place-items:center; background:rgba(38,34,32,.5); z-index:20; }
+  #token-modal.open { display:grid; }
+  #token-box { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px; width:min(360px,90vw); }
+  #token-box h2 { margin:0 0 6px; font-size:16px; }
+  #token-box p { font-size:12px; color:var(--muted); margin:0 0 12px; }
+  #token-box input { width:100%; margin-bottom:12px; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-family:inherit; font-size:14px; background:#fff; color:var(--ink); }
+  #token-box button { width:100%; background:var(--ink); color:var(--paper); border:none; border-radius:20px; padding:10px; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#ECE7DA; --paper:#1A1712; --card:#262220; --line:#3A352E; --muted:#A89E8C; }
+    #token-box input { background:#35302A; }
+    .thumb, .aud, .doc { background:#35302A !important; }
+  }
+</style>
+<header>
+  <h1>artifacts</h1>
+  <button id="repo-icon" type="button" title="repo browser" hidden>&lt;/&gt;</button>
+  <button id="refresh" type="button" title="refresh">↻</button>
+</header>
+<p class="sub">artifacts · your files</p>
+<div id="tabs"><span class="on">artifacts</span><a href="/ops">ops</a><a href="/notes">notes</a><a href="/skills">skills</a></div>
+<div id="upload-bar">
+  <label id="upload-pick" for="upload-file">Choose file</label>
+  <input id="upload-file" type="file" hidden>
+  <span id="upload-name">no file chosen</span>
+  <button id="upload-btn" type="button">↑ upload</button>
+  <span id="upload-msg"></span>
+</div>
+<input id="search" type="search" placeholder="search files…" autocomplete="off">
+<div id="chips"></div>
+<div id="quick" style="display:flex;gap:8px;margin-bottom:6px;"></div>
+<div id="repo-view" hidden>
+  <div style="display:flex;gap:8px;align-items:center;margin:4px 0 10px;">
+    <button id="repo-back" type="button">← artifacts</button>
+    <span id="repo-crumb" style="font-size:12px;opacity:.7;"></span>
+  </div>
+  <div id="repo-grid"></div>
+</div>
+
+<p id="meta">loading…</p>
+<div id="folders"></div>
+<p id="empty" hidden>no files yet</p>
+<p id="error" hidden></p>
+<div id="preview"><button id="close-preview" type="button">close</button><img id="preview-image" alt="preview"></div>
+<div id="reader"><div id="reader-box"><div id="reader-bar"><span id="reader-name"></span><button id="close-reader" type="button">close</button></div><pre id="reader-text"></pre></div></div>
+<div id="token-modal"><div id="token-box"><h2>Access token</h2><p>This gallery is private. Paste the token to unlock it.</p><input id="token" type="password" placeholder="Access token" autocomplete="off"><p id="token-err" style="color:var(--red);font-size:12px;margin:0 0 8px;min-height:14px;"></p><button id="save" type="button">unlock</button></div></div>
+<script>
+  const foldersEl = document.getElementById("folders");
+  const meta = document.getElementById("meta");
+  const empty = document.getElementById("empty");
+  const err = document.getElementById("error");
+  const searchBox = document.getElementById("search");
+  const chipsEl = document.getElementById("chips");
+  let allFolders = {};
+  let activeFilter = "all";
+  const isImg = (f) => /\.(png|jpe?g|gif|webp|avif)$/i.test(f);
+  const isVideo = (f) => /\.(mp4|webm|mov)$/i.test(f);
+  const isAudio = (f) => /\.(m4a|mp3|wav|ogg|aac)$/i.test(f);
+  const isDoc = (f) => /\.(html?|pdf|txt|svg)$/i.test(f);
+  const isText = (f) => /\.(txt|md|json|log)$/i.test(f);
+  const kindOf = (f) => isImg(f) ? "images" : (isVideo(f) || isAudio(f)) ? "audio" : (isText(f) || /\.pdf$/i.test(f)) ? "text" : "other";
+  const FILTERS = ["all", "images", "audio", "text", "other"];
+  function authed(url) {
+    const t = getToken();
+    if (!t) return url;
+    return url + (url.includes("?") ? "&" : "?") + "token=" + encodeURIComponent(t);
+  }
+  function downloadUrl(url, name) {
+    const a = document.createElement("a");
+    a.href = authed(url) + (authed(url).includes("?") ? "&" : "?") + "download=1";
+    a.download = name;
+    document.body.append(a); a.click(); a.remove();
+  }
+  function fmtSize(b) {
+    if (b == null) return "";
+    if (b < 1024) return b + " B";
+    if (b < 1048576) return (b / 1024).toFixed(0) + " KB";
+    return (b / 1048576).toFixed(1) + " MB";
+  }
+  function fmtTime(epoch) {
+    if (!epoch) return "";
+    const d = new Date(epoch * 1000);
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+  function card(url, size, mtime) {
+    const name = decodeURIComponent(url.split("/").pop());
+    const a = document.createElement("a");
+    a.className = "card"; a.href = "#";
+    if (isImg(name)) {
+      const img = document.createElement("img");
+      img.className = "thumb"; img.loading = "lazy";
+      fetch(url, { headers: { Authorization: "Bearer " + getToken() } }).then(r => r.blob()).then(b => { img.src = URL.createObjectURL(b); });
+      a.onclick = (e) => { e.preventDefault(); document.getElementById("preview-image").src = img.src; document.getElementById("preview").classList.add("open"); };
+      a.append(img);
+    } else if (isAudio(name)) {
+      const box = document.createElement("div");
+      box.className = "aud";
+      const au = document.createElement("audio");
+      au.controls = true; au.preload = "none"; au.src = authed(url);
+      box.append(au);
+      const d = document.createElement("div");
+      d.className = "dur";
+      d.textContent = /^rec-.*\.m4a$/i.test(name) ? "≈5:00 chunk" : "audio";
+      box.append(d);
+      a.append(box);
+      a.onclick = (e) => { e.preventDefault(); au.play().catch(() => {}); };
+    } else if (isVideo(name)) {
+      const v = document.createElement("video");
+      v.className = "thumb"; v.controls = true; v.preload = "metadata"; v.playsInline = true;
+      v.src = authed(url);
+      a.append(v);
+      a.onclick = (e) => { e.stopPropagation(); };
+      a.href = authed(url);
+      a.target = "_blank"; a.rel = "noopener";
+    } else {
+      const d = document.createElement("div");
+      d.className = "doc";
+      d.textContent = /\.pdf$/i.test(name) ? "📕" : /\.svg$/i.test(name) ? "🖼️" : /\.html?$/i.test(name) ? "🌐" : isText(name) ? "📝" : "📄";
+      a.append(d);
+      a.onclick = (e) => { e.preventDefault(); window.open(authed(url), "_blank", "noopener"); };
+    }
+    if (isText(name)) {
+      const u0 = url;
+      const n0 = name;
+      const prev = a.onclick;
+      a.onclick = (e) => { e.preventDefault(); openReader(u0, n0); };
+    }
+    const info = document.createElement("div");
+    info.className = "info";
+    const n = document.createElement("div");
+    n.className = "name"; n.textContent = name.length > 28 ? name.slice(0, 26) + "…" : name;
+    n.title = name;
+    info.append(n);
+    const s = document.createElement("div");
+    s.className = "sub2"; s.textContent = [fmtSize(size), fmtTime(mtime)].filter(Boolean).join(" · ");
+    info.append(s);
+    a.append(info);
+    const row = document.createElement("div"); row.className = "row";
+    const dl = document.createElement("button"); dl.textContent = "↓"; dl.type = "button"; dl.title = "download";
+    dl.onclick = (e) => { e.preventDefault(); e.stopPropagation(); downloadUrl(url, name); };
+    const isRepo = url.includes("/repo/");
+    const del = document.createElement("button"); del.textContent = "delete"; del.type = "button"; del.className = "del";
+    if (isRepo) del.style.display = "none";
+    del.onclick = async (e) => { e.preventDefault(); e.stopPropagation(); if (!confirm("Delete this file?")) return; const r = await fetch(url, { method: "DELETE", headers: auth() }); if (r.ok) { a.remove(); } else alert("Delete failed"); };
+    row.append(dl); row.append(del);
+    a.append(row);
+    return a;
+  }
+  function render() {
+    const q = (searchBox.value || "").toLowerCase();
+    foldersEl.innerHTML = "";
+    const isDay = (n) => /^\d{4}-\d{2}-\d{2}$/.test(n);
+    const days = Object.keys(allFolders).filter(isDay).sort().reverse();
+    const rest = Object.keys(allFolders).filter((n) => !isDay(n)).sort();
+    const names = [...days, ...rest];
+    const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
+    // Quick pins: today + persistent folders jump straight into their views.
+    const quick = document.getElementById("quick");
+    quick.innerHTML = "";
+    const persist = Object.keys(allFolders).filter((n) => !isDay(n)).sort();
+    for (const pin of [today, ...persist].filter((n, i, a) => allFolders[n] && a.indexOf(n) === i)) {
+      const b = document.createElement("button");
+      b.textContent = pin === today ? "today" : pin;
+      b.onclick = () => openView(pin);
+      quick.append(b);
+    }
+    document.getElementById("repo-icon").hidden = !repoFiles.length;
+    // Root is a folder list (every folder opens the drill-down subpage):
+    // entries show files matching the kind chips + search; tapping opens
+    // the view with the same filters applied. File search lives in the view.
+    const kinded = (name) => allFolders[name].filter((o) => {
+      const f = decodeURIComponent((o.u || o).split("/").pop());
+      return activeFilter === "all" || kindOf(f) === activeFilter;
+    });
+    const matched = (name) => kinded(name).filter((o) => {
+      const f = decodeURIComponent((o.u || o).split("/").pop());
+      return !q || f.toLowerCase().includes(q);
+    });
+    let total = 0;
+    names.forEach((name) => {
+      const kindFiles = kinded(name);
+      const hitFiles = matched(name);
+      const nameHit = q && name.toLowerCase().includes(q);
+      const shown = nameHit ? kindFiles : hitFiles;
+      if (!shown.length) return;
+      total += shown.length;
+      const a = document.createElement("a");
+      a.className = "dirrow"; a.href = "#"; a.id = "folder-" + name;
+      const ic = document.createElement("span"); ic.textContent = "📁";
+      const n = document.createElement("span"); n.className = "n"; n.textContent = name;
+      const c = document.createElement("span"); c.className = "c"; c.textContent = shown.length + " items ›";
+      a.append(ic); a.append(n); a.append(c);
+      a.onclick = (e) => { e.preventDefault(); openView(name); };
+      foldersEl.append(a);
+    });
+    empty.hidden = total > 0;
+    meta.textContent = `${total} files · ${retentionDays}-day retention`;
+  }
+  let repoFiles = [];
+  let retentionDays = 7;
+  // Subpage drill-down state: null = root, "repo", or an artifacts folder
+  // name (e.g. "shared"). Same view for both: dirs drill in, files render
+  // as cards (folder files keep download/delete; repo stays read-only).
+  let viewKind = null;
+  let viewCwd = [];
+  function showRepo() { openView("repo"); }
+  function openView(kind) {
+    viewKind = kind; viewCwd = [];
+    document.getElementById("chips").style.display = "none";
+    document.getElementById("meta").style.display = "none";
+    document.getElementById("folders").style.display = "none";
+    document.getElementById("quick").style.display = "none";
+    document.getElementById("repo-view").hidden = false;
+    renderView();
+    window.scrollTo(0, 0);
+  }
+  function showRoot() {
+    viewKind = null;
+    document.getElementById("chips").style.display = "";
+    document.getElementById("meta").style.display = "";
+    document.getElementById("folders").style.display = "";
+    document.getElementById("quick").style.display = "";
+    document.getElementById("repo-view").hidden = true;
+    render();
+    window.scrollTo(0, 0);
+  }
+  function folderRel(name, u) {
+    try {
+      const p = new URL(u, location.origin).pathname;
+      const prefix = "/terminus/" + name + "/";
+      return p.startsWith(prefix) ? decodeURIComponent(p.slice(prefix.length)) : null;
+    } catch (e) { return null; }
+  }
+  function viewFiles() {
+    if (viewKind === "repo") return repoFiles.slice();
+    const out = [];
+    for (const o of (allFolders[viewKind] || [])) {
+      const r = folderRel(viewKind, o.u || o);
+      if (r) out.push(r);
+    }
+    return out;
+  }
+  function viewMeta() {
+    const m = {};
+    if (viewKind && viewKind !== "repo") {
+      for (const o of (allFolders[viewKind] || [])) {
+        const r = folderRel(viewKind, o.u || o);
+        if (r) m[r] = o;
+      }
+    }
+    return m;
+  }
+  function viewUrl(rel) {
+    const base = viewKind === "repo" ? "/repo/" : "/terminus/" + viewKind + "/";
+    return location.origin + base + rel.split("/").map(encodeURIComponent).join("/");
+  }
+  function repoUrl(f) {
+    return location.origin + "/repo/" + String(f).split("/").map(encodeURIComponent).join("/");
+  }
+  function renderView() {
+    if (!viewKind) return;
+    const grid = document.getElementById("repo-grid");
+    grid.innerHTML = "";
+    document.querySelectorAll(".dirrow-list").forEach((el) => el.remove());
+    const files = viewFiles();
+    const metaByRel = viewMeta();
+    const rootLabel = viewKind === "repo" ? "terminus/" : viewKind + "/";
+    const counted = viewKind === "repo" ? " tracked" : " items";
+    document.getElementById("repo-crumb").textContent =
+      rootLabel + (viewCwd.join("/") || "") + ` · ${files.length}` + counted;
+    document.getElementById("repo-back").onclick = () => {
+      if (viewCwd.length) { viewCwd.pop(); renderView(); }
+      else showRoot();
+    };
+    if (!files.length) return;
+    const q = (searchBox.value || "").toLowerCase();
+    const prefix = viewCwd.length ? viewCwd.join("/") + "/" : "";
+    const seen = new Set();
+    const rows = [];
+    for (const f of files) {
+      if (viewKind !== "repo" && activeFilter !== "all" && kindOf(f.split("/").pop()) !== activeFilter) continue;
+      if (q && !f.toLowerCase().includes(q)) continue;
+      if (!f.startsWith(prefix)) continue;
+      const rest = f.slice(prefix.length);
+      const slash = rest.indexOf("/");
+      if (slash >= 0 && !q) {
+        const dir = rest.slice(0, slash);
+        if (seen.has(dir)) continue;
+        seen.add(dir);
+        rows.push({ dir });
+      } else {
+        rows.push({ file: f, name: q && slash >= 0 ? f : rest });
+      }
+    }
+    rows.sort((a, b) => {
+      const an = a.dir || a.name, bn = b.dir || b.name;
+      if (!!a.dir !== !!b.dir) return a.dir ? -1 : 1;
+      return an.localeCompare(bn);
+    });
+    const dirlist = document.createElement("div");
+    for (const r of rows) {
+      if (r.dir) {
+        const d = document.createElement("a");
+        d.className = "dirrow"; d.href = "#";
+        const ic = document.createElement("span"); ic.textContent = "📁";
+        const n = document.createElement("span"); n.className = "n"; n.textContent = r.dir;
+        const c = document.createElement("span"); c.className = "c"; c.textContent = "›";
+        d.append(ic); d.append(n); d.append(c);
+        d.onclick = (e) => { e.preventDefault(); viewCwd.push(r.dir); renderView(); };
+        dirlist.append(d);
+      } else if (viewKind === "repo") {
+        grid.append(repoFileRow(r.file));
+      } else {
+        const m = metaByRel[r.file] || {};
+        grid.append(card(viewUrl(r.file), m.s, m.t));
+      }
+    }
+    if (dirlist.children.length) {
+      dirlist.className = "dirrow-list";
+      grid.before(dirlist);
+    }
+    // Repo cards are read-only: drop their delete buttons.
+    if (viewKind === "repo") grid.querySelectorAll(".del").forEach((b) => b.remove());
+  }
+  // Repo text/code files render as compact rows (media keeps rich cards:
+  // nothing to play or preview inline). Tap routing mirrors card().
+  function repoFileRow(f) {
+    const url = repoUrl(f);
+    const name = f.split("/").pop();
+    const lower = name.toLowerCase();
+    const isMedia = /\.(png|jpe?g|gif|webp|avif|mp4|webm|mov|m4a|mp3|wav|ogg|aac)$/i.test(lower);
+    if (isMedia) return card(url, null, null);
+    const a = document.createElement("a");
+    a.className = "dirrow"; a.href = "#";
+    const ic = document.createElement("span");
+    ic.textContent = /\.(html?|pdf)$/i.test(lower) ? "📕" : /\.(txt|md|json|log|xml|ya?ml|toml|kts|kt|java|js|mjs|ts|py|sh|css)$/i.test(lower) ? "📝" : "📄";
+    const n = document.createElement("span"); n.className = "n"; n.textContent = name;
+    const c = document.createElement("span"); c.className = "c"; c.textContent = "\u203a";
+    a.append(ic); a.append(n); a.append(c);
+    a.onclick = (e) => {
+      e.preventDefault();
+      if (/\.(txt|md|json|log|xml|ya?ml|toml|kts|kt|java|js|mjs|ts|py|sh|css)$/i.test(lower)) openReader(url, name);
+      else window.open(authed(url), "_blank", "noopener");
+    };
+    return a;
+  }
+  function renderChips() {
+    chipsEl.innerHTML = "";
+    for (const f of FILTERS) {
+      const b = document.createElement("button");
+      b.textContent = f;
+      if (f === activeFilter) b.className = "on";
+      b.onclick = () => { activeFilter = f; renderChips(); render(); renderView(); };
+      chipsEl.append(b);
+    }
+  }
+  async function load() {
+    err.hidden = true;
+    let data;
+    try {
+      const r = await fetch("/terminus", { headers: { Accept: "application/json", Authorization: "Bearer " + getToken() } });
+      if (r.status === 401) throw new Error("token required or incorrect");
+      data = await r.json();
+    } catch (e) {
+      const hadToken = !!getToken();
+      if (String(e).includes("token required or incorrect")) {
+        setToken("");
+        foldersEl.innerHTML = "";
+        meta.textContent = "locked — enter token";
+      }
+      showTokenPrompt();
+      if (hadToken) { err.textContent = "token incorrect — try again"; err.hidden = false; }
+      else { err.hidden = true; }
+      return;
+    }
+    allFolders = data.folders || {};
+    if (typeof data.retentionDays === "number") retentionDays = data.retentionDays;
+    try {
+      const rr = await fetch("/api/repo-tree", { headers: { Authorization: "Bearer " + getToken() } });
+      if (rr.ok) {
+        const rj = await rr.json();
+        repoFiles = rj.files || [];
+      }
+    } catch {}
+    render();
+    renderView();
+  }
+  let sessionToken = "";
+  try { sessionToken = localStorage.getItem("terminus-token") || ""; } catch {}
+  function getToken() { return sessionToken; }
+  function setToken(t) { sessionToken = t; try { if (t) localStorage.setItem("terminus-token", t); else localStorage.removeItem("terminus-token"); } catch {} }
+  function auth() { return { Authorization: "Bearer " + getToken() }; }
+  function showTokenPrompt() { document.getElementById("token-modal").classList.add("open"); document.getElementById("token").focus(); }
+  function hideTokenPrompt() { document.getElementById("token-modal").classList.remove("open"); document.getElementById("token").value = ""; }
+  async function login(t) {
+    t = (t || "").trim();
+    if (!t) return false;
+    try {
+      const r = await fetch("/terminus-login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: t }) });
+      if (!r.ok) return false;
+    } catch { return false; }
+    setToken(t);
+    return true;
+  }
+  document.getElementById("token").value = "";
+  document.getElementById("save").onclick = async () => {
+    const t = document.getElementById("token").value.trim();
+    if (await login(t)) { hideTokenPrompt(); load(); return; }
+    document.getElementById("token-err").textContent = "wrong token";
+  };
+  document.getElementById("token").addEventListener("keydown", (e) => { if (e.key === "Enter") document.getElementById("save").click(); });
+  async function openReader(url, name) {
+    const box = document.getElementById("reader");
+    const txt = document.getElementById("reader-text");
+    document.getElementById("reader-name").textContent = name;
+    txt.textContent = "loading\u2026";
+    box.classList.add("open");
+    try {
+      const r = await fetch(url, { headers: { Authorization: "Bearer " + getToken() } });
+      if (!r.ok) throw new Error("http " + r.status);
+      const b = await r.blob();
+      if (b.size > 200 * 1024) throw new Error("too large to preview");
+      txt.textContent = await b.text();
+    } catch (e) {
+      txt.textContent = "cannot preview \u2014 " + e.message;
+    }
+  }
+  document.getElementById("close-reader").onclick = () => document.getElementById("reader").classList.remove("open");
+  document.getElementById("reader").onclick = (e) => { if (e.target.id === "reader") e.currentTarget.classList.remove("open"); };
+  document.getElementById("close-preview").onclick = () => document.getElementById("preview").classList.remove("open");
+  document.getElementById("preview").onclick = (e) => { if (e.target.id === "preview") e.currentTarget.classList.remove("open"); };
+  document.getElementById("refresh").onclick = load;
+  document.getElementById("repo-icon").onclick = showRepo;
+  searchBox.oninput = () => { render(); renderView(); };
+  document.getElementById("upload-file").onchange = (e) => {
+    const f = e.target.files && e.target.files[0];
+    document.getElementById("upload-name").textContent = f ? f.name : "no file chosen";
+  };
+  document.getElementById("upload-btn").onclick = async () => {
+    const input = document.getElementById("upload-file");
+    const name = document.getElementById("upload-name");
+    const msg = document.getElementById("upload-msg");
+    const f = input.files && input.files[0];
+    if (!f) { msg.textContent = "pick a file first"; return; }
+    msg.textContent = "uploading…";
+    try {
+      const r = await fetch("/terminus?filename=" + encodeURIComponent(f.name), {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": f.type || "application/octet-stream", "X-Filename": f.name },
+        body: f,
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.status === 403) { msg.textContent = "locked"; return; }
+      if (!r.ok) { msg.textContent = "failed: " + (d.error || r.status); return; }
+      msg.textContent = "saved";
+      input.value = "";
+      name.textContent = "no file chosen";
+      load();
+    } catch (e) { msg.textContent = "failed"; }
+  };
+  async function boot() {
+    if (!getToken()) {
+      const q = new URLSearchParams(location.search).get("token");
+      if (q && q.trim() && await login(q.trim())) {
+        try { history.replaceState(null, "", location.pathname); } catch {}
+      }
+    }
+    if (new URLSearchParams(location.search).get("mobile")) {
+      document.getElementById("tabs").style.display = "none";
+    }
+    if (!getToken()) showTokenPrompt();
+    renderChips();
+    load();
+  }
+  boot();
+  setInterval(load, 30000);
+</script>
+</html>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sectionLabel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="4dp"
+    android:paddingTop="14dp"
+    android:paddingBottom="6dp"
+    android:text="Today"
+    android:textSize="@dimen/ts_caption"
+    android:textStyle="bold"
+    android:letterSpacing="0.06"
+    android:textAllCaps="true"
+    android:textColor="@color/t_muted"
+    android:singleLine="true" />

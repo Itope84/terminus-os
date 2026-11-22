@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android Auto: chat notifications are messages (read aloud, voice reply) + the templated chat list. -->
+<automotiveApp>
+    <uses name="notification" />
+    <uses name="template" />
+</automotiveApp>

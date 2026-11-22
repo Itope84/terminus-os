@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/t_surface">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="18dp">
+
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textSize="@dimen/ts_title" android:textStyle="bold"
+            android:textColor="@color/t_ink" />
+
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Customize how Terminus works"
+            android:textSize="@dimen/ts_caption"
+            android:textColor="@color/t_muted" />
+
+        <!-- Chat defaults -->
+        <LinearLayout style="@style/SettingsCard">
+            <LinearLayout
+                android:id="@+id/defSectionChatHeader"
+                style="@style/SettingsCardHeader"
+                android:contentDescription="Chat settings, expanded">
+                <TextView style="@style/SettingsSectionIcon" android:text="💬"
+                    android:importantForAccessibility="no" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content">
+                    <TextView android:tag="title" style="@style/SettingsCardTitle" android:text="Chat" />
+                    <TextView android:id="@+id/defChatSummary" style="@style/SettingsSectionSummary" />
+                </LinearLayout>
+                <TextView android:id="@+id/defSectionChatArrow" style="@style/SettingsSectionArrow" android:text="⌃" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/defSectionChatBody"
+                android:orientation="vertical"
+                android:layout_width="match_parent" android:layout_height="wrap_content">
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/t_line" />
+                <LinearLayout android:id="@+id/defBackendRow" style="@style/SettingsCardRow">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content">
+                        <TextView style="@style/SettingsRowLabel" android:text="Backend" />
+                        <TextView android:id="@+id/defBackendValue" style="@style/SettingsRowValue" android:text="OpenCode" />
+                    </LinearLayout>
+                    <TextView style="@style/SettingsRowArrow" android:text="›" />
+                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp" android:layout_marginBottom="6dp"
+                    android:text="Applies to new chats"
+                    android:textSize="@dimen/ts_caption" android:textColor="@color/t_muted" />
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:layout_marginStart="14dp" android:background="@color/t_line" />
+                <LinearLayout android:id="@+id/defModelRow" style="@style/SettingsCardRow">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content">
+                        <TextView style="@style/SettingsRowLabel" android:text="Default model" />
+                        <TextView android:id="@+id/defModelValue" style="@style/SettingsRowValue" android:text="server default" />
+                    </LinearLayout>
+                    <TextView style="@style/SettingsRowArrow" android:text="›" />
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:layout_marginStart="14dp" android:background="@color/t_line" />
+                <LinearLayout android:id="@+id/defCompactRow" style="@style/SettingsCardRow">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content">
+                        <TextView style="@style/SettingsRowLabel" android:text="Auto-compact" />
+                        <TextView android:id="@+id/defCompactValue" style="@style/SettingsRowValue" android:text="Default" />
+                    </LinearLayout>
+                    <TextView style="@style/SettingsRowArrow" android:text="›" />
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:layout_marginStart="14dp" android:background="@color/t_line" />
+                <LinearLayout
+                    android:id="@+id/defPromptHeader"
+                    style="@style/SettingsCardRow">
+                    <TextView
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="System prompt" android:textSize="@dimen/ts_small"
+                        android:textColor="@color/t_ink" />
+                    <TextView
+                        android:id="@+id/defPromptPreview"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="built-in" android:textSize="@dimen/ts_caption"
+                        android:textColor="@color/t_muted" />
+                    <TextView
+                        android:id="@+id/defPromptChevron"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp" android:text="›"
+                        android:textSize="@dimen/ts_title" android:textColor="@color/t_muted" />
+                </LinearLayout>
+                <EditText
+                    android:id="@+id/defSystemPrompt"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:minHeight="96dp" android:visibility="gone"
+                    android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+                    android:layout_marginBottom="12dp" android:background="@drawable/field_bg"
+                    android:padding="12dp" android:textSize="@dimen/ts_small"
+                    android:textColor="@color/t_ink" android:textColorHint="@color/t_muted"
+                    android:hint="Blank = built-in seed" android:gravity="top"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:imeOptions="actionDone" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Voice and notification preferences -->
+        <LinearLayout style="@style/SettingsCard">
+            <LinearLayout
+                android:id="@+id/defSectionVoiceHeader"
+                style="@style/SettingsCardHeader"
+                android:contentDescription="Voice and notifications settings, collapsed">
+                <TextView style="@style/SettingsSectionIcon" android:text="🎙"
+                    android:importantForAccessibility="no" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content">
+                    <TextView android:tag="title" style="@style/SettingsCardTitle" android:text="Voice &amp; notifications" />
+                    <TextView android:id="@+id/defVoiceSummary" style="@style/SettingsSectionSummary" />
+                </LinearLayout>
+                <TextView android:id="@+id/defSectionVoiceArrow" style="@style/SettingsSectionArrow" android:text="⌄" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/defSectionVoiceBody"
+                android:orientation="vertical"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:visibility="gone">
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/t_line" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="14dp">
+                    <CheckBox
+                        android:id="@+id/defVoiceSend"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:padding="0dp" android:text="Send when dictation ends with"
+                        android:textSize="@dimen/ts_small" android:textColor="@color/t_ink" />
+                    <EditText
+                        android:id="@+id/defVoiceSendPhrase"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp" android:layout_marginTop="4dp"
+                        android:background="@drawable/field_bg"
+                        android:hint="Send word or phrase (e.g. send)"
+                        android:inputType="textCapSentences|textNoSuggestions"
+                        android:singleLine="true" android:paddingStart="12dp"
+                        android:paddingEnd="12dp" android:paddingTop="9dp"
+                        android:paddingBottom="9dp" android:textSize="@dimen/ts_small"
+                        android:textColor="@color/t_ink" android:textColorHint="@color/t_muted" />
+                    <TextView
+                        android:id="@+id/defVoiceSendHelp"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp" android:layout_marginTop="6dp"
+                        android:text="End dictation with this word or phrase to send; Terminus removes it from the message."
+                        android:textSize="@dimen/ts_caption" android:lineSpacingExtra="2dp"
+                        android:textColor="@color/t_muted" />
+                    <CheckBox
+                        android:id="@+id/defLinkPreviews"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:minHeight="48dp"
+                        android:padding="0dp" android:text="Link previews"
+                        android:textSize="@dimen/ts_small" android:textColor="@color/t_ink" />
+                    <TextView
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Show a link's page title in the thread. This phone reads the page title only (never downloads or opens anything); sites can see the lookup, and Google supplies the site icon. Off keeps plain links"
+                        android:textSize="@dimen/ts_caption" android:lineSpacingExtra="2dp"
+                        android:textColor="@color/t_muted" />
+                    <CheckBox
+                        android:id="@+id/defHotkeys"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:minHeight="48dp"
+                        android:padding="0dp" android:text="Volume button hotkeys"
+                        android:textSize="@dimen/ts_small" android:textColor="@color/t_ink" />
+                    <TextView
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Double-press volume up to dictate, volume down to hear the last reply. Single presses still change volume; one press stops while active"
+                        android:textSize="@dimen/ts_caption"
+                        android:textColor="@color/t_muted" />
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:layout_marginStart="14dp" android:background="@color/t_line" />
+                <LinearLayout android:id="@+id/defSoundRow" style="@style/SettingsCardRow">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content">
+                        <TextView style="@style/SettingsRowLabel" android:text="Chat sound" />
+                        <TextView android:id="@+id/defSoundValue" style="@style/SettingsRowValue" android:text="system default" />
+                    </LinearLayout>
+                    <TextView style="@style/SettingsRowArrow" android:text="›" />
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:layout_marginStart="14dp" android:background="@color/t_line" />
+                <TextView
+                    android:id="@+id/defChannelSettings"
+                    style="@style/SettingsCardRow"
+                    android:text="Notification channel settings   ›"
+                    android:textSize="@dimen/ts_small" android:textColor="@color/t_muted" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Appearance -->
+        <LinearLayout style="@style/SettingsCard">
+            <LinearLayout
+                android:id="@+id/defSectionAppearanceHeader"
+                style="@style/SettingsCardHeader"
+                android:contentDescription="Appearance settings, collapsed">
+                <TextView style="@style/SettingsSectionIcon" android:text="🎨"
+                    android:importantForAccessibility="no" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content">
+                    <TextView android:tag="title" style="@style/SettingsCardTitle" android:text="Appearance" />
+                    <TextView android:id="@+id/defAppearanceSummary" style="@style/SettingsSectionSummary" />
+                </LinearLayout>
+                <TextView android:id="@+id/defSectionAppearanceArrow" style="@style/SettingsSectionArrow" android:text="⌄" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/defSectionAppearanceBody"
+                android:orientation="vertical"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:visibility="gone">
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/t_line" />
+                <LinearLayout
+                    android:id="@+id/defAppearanceRow"
+                    style="@style/SettingsCardRow">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content">
+                        <TextView style="@style/SettingsRowLabel" android:text="Theme" />
+                        <TextView
+                            android:id="@+id/defAppearanceValue"
+                            style="@style/SettingsRowValue" android:text="system" />
+                    </LinearLayout>
+                    <TextView style="@style/SettingsRowArrow" android:text="›" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Connection: where the app talks to, checked before it is saved -->
+        <LinearLayout style="@style/SettingsCard">
+            <LinearLayout
+                android:id="@+id/defSectionConnHeader"
+                style="@style/SettingsCardHeader"
+                android:contentDescription="Connection settings, collapsed">
+                <TextView style="@style/SettingsSectionIcon" android:text="🔌"
+                    android:importantForAccessibility="no" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content">
+                    <TextView android:tag="title" style="@style/SettingsCardTitle" android:text="Connection" />
+                    <TextView android:id="@+id/defConnSummary" style="@style/SettingsSectionSummary" />
+                </LinearLayout>
+                <TextView android:id="@+id/defSectionConnArrow" style="@style/SettingsSectionArrow" android:text="⌄" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/defSectionConnBody"
+                android:orientation="vertical"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:visibility="gone">
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/t_line" />
+                <TextView style="@style/SettingsFieldLabel" android:text="Server URL" />
+                <EditText
+                    android:id="@+id/defServerUrl"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+                    android:layout_marginTop="4dp" android:background="@drawable/field_bg"
+                    android:padding="12dp" android:textSize="@dimen/ts_small"
+                    android:textColor="@color/t_ink" android:textColorHint="@color/t_muted"
+                    android:hint="http://10.0.2.2:9009" android:inputType="textUri"
+                    android:imeOptions="actionNext" />
+                <TextView style="@style/SettingsFieldLabel" android:text="Server password" />
+                <FrameLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+                    android:layout_marginTop="4dp">
+                    <EditText
+                        android:id="@+id/defApiToken"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:background="@drawable/field_bg"
+                        android:paddingStart="12dp" android:paddingTop="12dp" android:paddingBottom="12dp"
+                        android:paddingEnd="72dp" android:textSize="@dimen/ts_small"
+                        android:textColor="@color/t_ink" android:textColorHint="@color/t_muted"
+                        android:hint="Server password" android:inputType="textPassword"
+                        android:imeOptions="actionDone" />
+                    <TextView
+                        android:id="@+id/defTokenToggle"
+                        android:layout_width="64dp" android:layout_height="48dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:gravity="center" android:text="Show"
+                        android:textSize="@dimen/ts_small" android:textStyle="bold"
+                        android:textColor="@color/t_link"
+                        android:contentDescription="Show or hide the password"
+                        android:clickable="true" android:focusable="true" />
+                </FrameLayout>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingStart="14dp" android:paddingEnd="14dp"
+                    android:paddingTop="8dp" android:paddingBottom="12dp">
+                    <Button
+                        android:id="@+id/defTestConn"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="wrap_content" android:layout_height="48dp"
+                        android:minWidth="0dp" android:paddingStart="0dp" android:paddingEnd="16dp"
+                        android:text="Test connection" android:textAllCaps="false"
+                        android:textColor="@color/t_link" />
+                    <TextView
+                        android:id="@+id/defConnStatus"
+                        android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/ts_small" android:textColor="@color/t_muted" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Advanced -->
+        <LinearLayout style="@style/SettingsCard">
+            <LinearLayout
+                android:id="@+id/defSectionAdvancedHeader"
+                style="@style/SettingsCardHeader"
+                android:contentDescription="Advanced settings, collapsed">
+                <TextView style="@style/SettingsSectionIcon" android:text="⚙"
+                    android:importantForAccessibility="no" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content">
+                    <TextView android:tag="title" style="@style/SettingsCardTitle" android:text="Advanced" />
+                    <TextView android:id="@+id/defAdvancedSummary" style="@style/SettingsSectionSummary" />
+                </LinearLayout>
+                <TextView android:id="@+id/defSectionAdvancedArrow" style="@style/SettingsSectionArrow" android:text="⌄" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/defSectionAdvancedBody"
+                android:orientation="vertical"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:visibility="gone">
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/t_line" />
+                <TextView
+                    android:id="@+id/defBuild"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="12dp" android:gravity="center"
+                    android:text="build ?" android:textSize="@dimen/ts_caption"
+                    android:textColor="@color/t_faint" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/defSaved"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:gravity="center"
+            android:visibility="gone" android:text=""
+            android:textSize="@dimen/ts_small" android:textColor="@color/t_ok" />
+
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:gravity="center"
+            android:text="Voice and theme apply immediately. Save sends chat defaults to the server and checks any new connection first."
+            android:textSize="@dimen/ts_caption" android:textColor="@color/t_muted" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:gravity="end|center_vertical">
+            <Button
+                android:id="@+id/defCancel"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:paddingStart="16dp" android:paddingEnd="16dp"
+                android:text="Cancel"
+                android:textSize="@dimen/ts_small"
+                android:textAllCaps="false"
+                android:contentDescription="cancel selection" />
+            <Button
+                android:id="@+id/defSave"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:paddingStart="20dp" android:paddingEnd="20dp"
+                android:background="@drawable/btn_primary"
+                android:text="Save changes" android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="@color/t_window" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

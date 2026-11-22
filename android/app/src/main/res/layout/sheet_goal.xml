@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Goal arm/edit sheet: same look as the code-built version, now in XML
+  - so theming lives with every other sheet. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:paddingBottom="28dp">
+
+    <TextView
+        android:id="@+id/goalTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set session goal"
+        android:textSize="@dimen/ts_lead"
+        android:textStyle="bold"
+        android:textColor="@color/t_ink" />
+
+    <EditText
+        android:id="@+id/goalInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minLines="2"
+        android:textSize="@dimen/ts_body"
+        android:textColor="@color/t_ink"
+        android:textColorHint="@color/t_muted"
+        android:background="@drawable/field_bg"
+        android:padding="8dp"
+        android:hint="Outcome, proof, stop words. e.g. Cut the video and stage a link. Done = reply holds a playable link ending GOAL DONE: &lt;link&gt;." />
+
+    <CheckBox
+        android:id="@+id/goalLoop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Keep going on its own until done"
+        android:textSize="@dimen/ts_small"
+        android:textColor="@color/t_ink" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/goalArm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Arm goal"
+        app:cornerRadius="12dp"
+        android:backgroundTint="@color/t_chip"
+        android:textColor="@color/t_ink" />
+
+</LinearLayout>

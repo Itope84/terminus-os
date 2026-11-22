@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Left rule for a quoted excerpt (blockquote look). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="start|fill_vertical" android:width="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/t_muted" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/t_surface"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rename chat"
+        android:textSize="@dimen/ts_lead"
+        android:textStyle="bold"
+        android:textColor="@color/t_ink" />
+
+    <EditText
+        android:id="@+id/renameField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/field_bg"
+        android:hint="Chat name"
+        android:textSize="@dimen/ts_body"
+        android:textColor="@color/t_ink"
+        android:textColorHint="@color/t_muted"
+        android:padding="8dp"
+        android:inputType="textCapSentences"
+        android:maxLines="1" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="end|center_vertical">
+
+        <TextView
+            android:id="@+id/renameSave"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minWidth="88dp"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:paddingLeft="16dp" android:paddingRight="16dp"
+            android:background="@drawable/btn_pill"
+            android:text="Save"
+            android:textSize="@dimen/ts_small"
+            android:textStyle="bold"
+            android:textColor="@color/t_user_text" />
+
+        <TextView
+            android:id="@+id/renameCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minWidth="48dp"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:paddingLeft="16dp" android:paddingRight="16dp"
+            android:text="Cancel"
+            android:textSize="@dimen/ts_small"
+            android:textStyle="bold"
+            android:textColor="@color/t_muted" />
+    </LinearLayout>
+</LinearLayout>

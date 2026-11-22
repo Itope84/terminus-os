@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/t_surface"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/modelTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Model for this chat"
+        android:textSize="@dimen/ts_lead"
+        android:textStyle="bold"
+        android:textColor="@color/t_ink" />
+
+    <EditText
+        android:id="@+id/modelFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/field_bg"
+        android:hint="Filter models"
+        android:textSize="@dimen/ts_body"
+        android:textColor="@color/t_ink"
+        android:textColorHint="@color/t_muted"
+        android:padding="8dp"
+        android:inputType="text"
+        android:maxLines="1"
+        android:singleLine="true" />
+
+    <ListView
+        android:id="@+id/modelList"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:layout_marginTop="8dp"
+        android:divider="@color/t_line"
+        android:dividerHeight="1dp"
+        android:clipToPadding="false" />
+
+</LinearLayout>

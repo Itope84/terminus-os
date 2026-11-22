@@ -1,0 +1,74 @@
+/* Thread cards: tool notes, collapsibles, alarm card and code blocks share the browser card's look.
+   Neutral translucent greys so one rule set works in both themes. Loaded last, overrides the base rules. */
+.row.tool{border:1px solid rgba(128,128,128,.3);background:rgba(128,128,128,.07);border-radius:14px}
+.row.tool+.row.tool{margin-top:-6px}
+.toolhead{font-size:12px;font-weight:600;letter-spacing:.02em;opacity:.65;text-transform:uppercase}
+.steps{border:1px solid rgba(128,128,128,.3);border-radius:10px;background:rgba(128,128,128,.07);overflow:hidden}
+.steps .sum{display:block;padding:5px 12px;min-height:20px;line-height:20px}
+.steps.open .sum{border-bottom:1px solid rgba(128,128,128,.22)}
+.steps .sbody{padding:8px 12px 10px}
+a.alarmcard{border:1px solid rgba(128,128,128,.3);border-radius:16px;background:rgba(128,128,128,.07)}
+.alarme{flex:none;width:34px;height:34px;border-radius:10px;background:rgba(127,179,232,.18);display:flex;align-items:center;justify-content:center;font-size:20px}
+pre{position:relative;border:1px solid rgba(128,128,128,.28);border-radius:12px}
+.cpb{position:absolute;top:4px;right:4px;min-width:44px;height:32px;padding:0 10px;border:1px solid rgba(128,128,128,.35);border-radius:8px;background:rgba(128,128,128,.22);color:inherit;font:600 12px sans-serif;opacity:.85}
+.cpb:active{opacity:1;background:rgba(128,128,128,.4)}
+
+/* Chat polish: quieter chrome. Same neutral-grey approach, so one rule set serves both themes. */
+.row.user{border-radius:20px 20px 6px 20px;padding:11px 15px}
+.row.assistant{line-height:1.56}
+/* Steps become a small chip; opening it grows back into a card. */
+.steps{display:table;max-width:100%;border:0;border-radius:999px;background:rgba(128,128,128,.13);margin:2px 0 10px}
+.steps .sum{padding:3px 12px;min-height:0;font-size:13px;line-height:22px}
+.steps.open{display:block;border-radius:14px}
+/* Needs-you card: an event that is waiting on the person, filed in the thread it belongs to. */
+.row.needcard{border:1px solid rgba(214,120,70,.55);background:rgba(214,120,70,.10);border-radius:14px;padding:10px 14px}
+.needpill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#C2602F;border:1px solid rgba(214,120,70,.6);border-radius:10px;padding:1px 8px;margin-bottom:6px}
+.needtitle{font-weight:600;line-height:1.35}
+.needbody{font-size:14px;opacity:.75;margin-top:2px;line-height:1.4}
+/* Sent messages: capped at 30% of the screen, faded at the cut; "Show all" expands in place. */
+.row.user .ubody{max-height:30vh;overflow:hidden}
+.row.user .ubody.clip{-webkit-mask-image:linear-gradient(#000 72%,transparent);mask-image:linear-gradient(#000 72%,transparent)}
+.row.user .ubody.open{max-height:none;-webkit-mask-image:none;mask-image:none}
+.row.user .umore{display:flex;justify-content:center;margin:2px 0 -4px;opacity:.75;cursor:pointer;-webkit-tap-highlight-color:transparent;color:inherit;text-decoration:none}
+.row.user .umore svg{width:22px;height:22px;transition:transform .15s}
+.row.user .umore.up svg{transform:rotate(180deg)}
+
+/* Map cards (```map): fixed height, rounded like the other cards; Leaflet supplies the rest. */
+.mapcard{height:240px;border-radius:12px;overflow:hidden;margin:8px 0;border:1px solid var(--line,rgba(127,127,127,.25));z-index:0;position:relative}
+.mapcard .leaflet-control-attribution{font-size:9px}
+.mapask{display:inline-block;font-size:12px;margin:-2px 0 8px;opacity:.8;text-decoration:underline;cursor:pointer}
+.mapcard .maplabel{font-size:11px;padding:1px 6px;border-radius:8px}
+
+/* Background jobs: one quiet line each (ChatMarkdown bgline). */
+/* Job tag on the reply's "Completed ▸" row (thread-ui.js), lines under it on tap. */
+.steps .sum{display:flex;align-items:center;gap:8px}
+.steps .bgtag{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:2px 0 2px 9px;border-left:1px solid rgba(128,120,108,.35);white-space:nowrap}
+.steps.bgonly .bgtag{border-left:0;padding-left:0;margin-left:0}
+.steps.bgonly .sum{cursor:default}
+.steps .bgtag .bgspin{flex:none;width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor;border-right-color:transparent;animation:bgspin 1s linear infinite}
+.steps .bgjobs{display:none;padding:2px 12px 8px;border-top:1px solid rgba(128,128,128,.22)}
+/* Open: a full-width box like the open steps box, so long job names cut off with … instead of running off. */
+.steps.bgopen{display:block;border-radius:14px}
+.steps.bgopen .bgjobs{display:block}
+.steps .bgjobs .bgline{margin:6px 0 0;font-size:13px}
+.bgline{display:block;font-size:12.5px;margin:2px 4px 8px;padding:0}
+.bgline .bghead{display:flex;align-items:center;gap:7px;min-width:0}
+.bgline .bgtxt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bgline .bgmeta{flex:none;opacity:.85}
+.bgline .bgic{flex:none;width:12px;text-align:center}
+.bgline .bgstop{flex:none;min-width:22px;padding:2px 4px;margin:-4px -4px -4px 2px;text-align:center;opacity:.75;cursor:pointer;border-radius:8px}
+.bgline .bgstop.armed{opacity:1;font-weight:600}
+.bgline .bgmore{flex:none;text-decoration:underline;opacity:.7;cursor:pointer}
+.bgline .bgspin{flex:none;width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor;border-right-color:transparent;animation:bgspin 1s linear infinite;margin:0 1.5px}
+@keyframes bgspin{to{transform:rotate(360deg)}}
+.bgline .bgfull{display:none;margin-top:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;white-space:pre-wrap;overflow-wrap:break-word;max-height:40vh;overflow:auto;opacity:.9}
+.bgline.open .bgfull{display:block}
+.bgline.open .bgtxt{white-space:normal}
+
+/* Status chip (thread-ui.js): how many background jobs are running; the job lines stay in the thread. */
+#bgchip{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:50;font-size:12px;padding:3px 10px;border-radius:12px;display:none;align-items:center;gap:6px;cursor:pointer;
+  background:rgba(40,36,31,.92);color:#ECE7DA;border:1px solid rgba(168,158,140,.35);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+#bgchip.show{display:flex}
+/* Room under the last message so the chip never covers it. */
+body.has-bgchip{padding-bottom:40px}
+#bgchip .bgspin{width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor;border-right-color:transparent;animation:bgspin 1s linear infinite}

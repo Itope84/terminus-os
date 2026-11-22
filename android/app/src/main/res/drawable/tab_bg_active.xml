@@ -1,0 +1,4 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/t_ripple">
+    <item android:drawable="@drawable/tab_underline" />
+</ripple>

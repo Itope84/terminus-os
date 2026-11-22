@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/sheet_bg"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="12dp">
+
+    <TextView
+        android:id="@+id/shareTargetTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose a chat"
+        android:textSize="@dimen/ts_title"
+        android:textStyle="bold"
+        android:textColor="@color/t_ink" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:padding="10dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/field_bg">
+
+        <FrameLayout
+            android:id="@+id/sharePayloadTile"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/thumb_frame"
+            android:clipToOutline="true">
+
+            <ImageView
+                android:id="@+id/sharePayloadThumb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:contentDescription="shared image preview" />
+
+            <TextView
+                android:id="@+id/sharePayloadType"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="FILE"
+                android:textSize="@dimen/ts_caption"
+                android:textStyle="bold"
+                android:textColor="@color/t_muted" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/sharePayloadName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/ts_small"
+                android:textStyle="bold"
+                android:textColor="@color/t_ink"
+                android:maxLines="1"
+                android:ellipsize="middle" />
+
+            <TextView
+                android:id="@+id/sharePayloadMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textSize="@dimen/ts_caption"
+                android:textColor="@color/t_muted"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/shareNewChat"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:text="＋   New chat"
+        android:textAllCaps="false"
+        android:textColor="@color/t_ink"
+        app:backgroundTint="@color/t_chip"
+        app:cornerRadius="14dp" />
+
+    <EditText
+        android:id="@+id/shareChatSearch"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:singleLine="true"
+        android:hint="Search chats"
+        android:textColor="@color/t_ink"
+        android:textColorHint="@color/t_muted"
+        android:background="@drawable/field_bg"
+        android:inputType="text" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp">
+
+        <ListView
+            android:id="@+id/shareChatList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@null"
+            android:clipToPadding="false" />
+
+        <TextView
+            android:id="@+id/shareChatEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="No matching chats"
+            android:textSize="@dimen/ts_small"
+            android:textColor="@color/t_muted"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:gravity="center"
+        android:text="This adds it to a draft. It won't send until you tap Send."
+        android:textSize="@dimen/ts_caption"
+        android:textColor="@color/t_muted" />
+</LinearLayout>

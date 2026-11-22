@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp"
+    android:viewportWidth="300"
+    android:viewportHeight="300">
+    <!-- Official OpenCode square mark (light variant), sourced from
+         sst/opencode brand assets. Colors fixed by the brand. -->
+    <path
+        android:fillColor="#211E1E"
+        android:fillType="evenOdd"
+        android:pathData="M210,60H90V240H210V60ZM270,300H30V0H270V300Z" />
+    <path
+        android:fillColor="#CFCECD"
+        android:pathData="M210,240H90V120H210V240Z" />
+</vector>

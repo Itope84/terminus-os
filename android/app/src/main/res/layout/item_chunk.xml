@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="16dp" android:paddingRight="8dp"
+    android:paddingTop="10dp" android:paddingBottom="10dp"
+    android:gravity="center_vertical">
+
+    <FrameLayout
+        android:id="@+id/chunkPlay"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/play_btn_bg"
+        android:contentDescription="play chunk">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:includeFontPadding="false"
+            android:text="▶"
+            android:textSize="@dimen/ts_small"
+            android:textColor="@color/t_user_text" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp">
+
+        <TextView android:id="@+id/chunkName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textSize="@dimen/ts_caption"
+            android:textColor="@color/t_ink" />
+
+        <TextView android:id="@+id/chunkState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="monospace"
+            android:textSize="@dimen/ts_caption"
+            android:textColor="@color/t_muted" />
+    </LinearLayout>
+
+    <TextView android:id="@+id/chunkMore"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="⋯"
+        android:textSize="@dimen/ts_title"
+        android:textColor="@color/t_ink"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="more actions" />
+</LinearLayout>

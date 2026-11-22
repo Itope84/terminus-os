@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- List leading-art frame: same 10dp rounding as the tile and thumbnail,
+  - so no square container corner peeks out behind either. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/t_chip" />
+    <corners android:radius="10dp" />
+</shape>

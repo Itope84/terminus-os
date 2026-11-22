@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/t_surface"
+    app:strokeColor="@color/t_line"
+    app:strokeWidth="1dp"
+    app:cardElevation="0dp"
+    app:cardCornerRadius="12dp">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingStart="10dp"
+        android:paddingEnd="4dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:minHeight="60dp">
+
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/thumb_frame">
+
+            <TextView
+                android:id="@+id/sessIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:background="@drawable/tile_bg"
+                android:text="•"
+                android:textSize="@dimen/ts_icon"
+                android:textColor="@color/t_ink" />
+
+            <ImageView
+                android:id="@+id/sessThumb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/tile_bg"
+                android:clipToOutline="true"
+                android:visibility="gone"
+                android:contentDescription="chat image" />
+
+            <TextView
+                android:id="@+id/sessCheck"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:text="✓"
+                android:textSize="@dimen/ts_small"
+                android:textColor="@color/t_user_text"
+                android:background="@drawable/selected_badge"
+                android:visibility="gone"
+                android:contentDescription="selected" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/sessTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="new chat"
+                android:textSize="@dimen/ts_body"
+                android:textColor="@color/t_ink"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/sessPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="no messages yet"
+                android:textSize="@dimen/ts_small"
+                android:textColor="@color/t_muted"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/sessMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:visibility="gone"
+                android:text=""
+                android:textSize="@dimen/ts_caption"
+                android:textColor="@color/t_muted"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:gravity="end">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/sessSysBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="gone"
+                    android:text="schedule"
+                    android:textSize="@dimen/ts_caption"
+                    android:textColor="@color/t_muted"
+                    android:background="@drawable/sys_pill"
+                    android:paddingStart="7dp"
+                    android:paddingEnd="7dp"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
+                    android:singleLine="true" />
+
+                <FrameLayout
+                    android:layout_width="16dp"
+                    android:layout_height="16dp">
+
+                    <View
+                        android:id="@+id/sessBadge"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        android:background="@drawable/unread_dot"
+                        android:contentDescription="unread messages" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="16dp"
+                    android:layout_height="16dp">
+
+                    <ImageView
+                        android:id="@+id/sessPin"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_pin"
+                        android:visibility="gone"
+                        android:contentDescription="pinned chat" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/sessMenu"
+                    android:layout_width="44dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="-6dp"
+                    android:layout_marginBottom="-4dp"
+                    android:gravity="center"
+                    android:text="⋮"
+                    android:textSize="@dimen/ts_title"
+                    android:textColor="@color/t_muted"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="chat options" />
+            </LinearLayout>
+
+            <!-- Time sits bottom right, under the menu, so the title starts higher. -->
+            <TextView
+                android:id="@+id/sessTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text=""
+                android:textSize="@dimen/ts_caption"
+                android:textColor="@color/t_muted"
+                android:singleLine="true" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

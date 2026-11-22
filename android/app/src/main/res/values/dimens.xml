@@ -1,0 +1,10 @@
+<resources>
+    <!-- Type scale for native screens. Use these instead of literal sp values. -->
+    <dimen name="ts_caption">12sp</dimen>
+    <dimen name="ts_small">14sp</dimen>
+    <dimen name="ts_body">16sp</dimen>
+    <dimen name="ts_lead">18sp</dimen>
+    <dimen name="ts_title">20sp</dimen>
+    <dimen name="ts_icon">22sp</dimen>
+    <dimen name="ts_display">24sp</dimen>
+</resources>

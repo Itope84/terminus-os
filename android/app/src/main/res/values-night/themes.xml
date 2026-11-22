@@ -1,0 +1,15 @@
+<resources>
+    <!-- Night twin: dark chrome + light status/nav icons. -->
+    <style name="Theme.Terminus" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/t_ink</item>
+        <item name="colorOnPrimary">@color/t_window</item>
+        <item name="colorSurface">@color/t_window</item>
+        <item name="colorOnSurface">@color/t_ink</item>
+        <item name="android:windowBackground">@color/t_window</item>
+        <item name="android:textColorPrimary">@color/t_ink</item>
+        <item name="android:statusBarColor">@color/t_window</item>
+        <item name="android:navigationBarColor">@color/t_window</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/tabEcho" android:title="echo" android:icon="@drawable/ic_echo" />
+    <item android:id="@+id/tabNotes" android:title="notebook" android:icon="@drawable/ic_notes" />
+    <item android:id="@+id/tabChat" android:title="chat" android:icon="@drawable/ic_chat" />
+    <item android:id="@+id/tabGallery" android:title="artifacts" android:icon="@drawable/ic_artifacts" />
+    <item android:id="@+id/tabOps" android:title="ops" android:icon="@drawable/ic_pulse" />
+</menu>

@@ -1,0 +1,33 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Mac server: opencode proxy, inbox, gallery, notes, browser automation",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aesrael/terminus-os.git",
+    "directory": "server"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node dist/index.js",
+    "serve": "node dist/server.js",
+    "dev": "tsx src/index.ts",
+    "dev:serve": "tsx src/server.ts",
+    "build": "tsc",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@opencode/client": "^2.3.2",
+    "playwright": "^1.48.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
