@@ -11,7 +11,7 @@ android {
         applicationId = "com.terminus.rec"
         minSdk = 29
         targetSdk = 34
-        versionCode = 1318
+        versionCode = 1319
         versionName = "2.5.2"
         // App strings are English only; this drops the locale strings that
         // material/appcompat/car ship in resources.arsc.

@@ -257,8 +257,9 @@ internal fun MainActivity.startStream(id: String) {
                                 onBackgroundRow(id, fstatus, flabel, fdetail,
                                     if (elapsedMs < 0) "" else BackgroundUi.elapsedText(elapsedMs),
                                     ffull)
-                                // Last job gone: release the stream we held.
-                                if (fstatus != "started" && !backgroundJobs.any(id) && streamChat == id) {
+                                // Last job gone: release the stream we held, unless a reply is still running
+                                // here (the stream carries its done; dropping it hid replies until the next send).
+                                if (fstatus != "started" && !backgroundJobs.any(id) && streamChat == id && !chatStore.hasLive(id)) {
                                     idleStreamHandoff(id)
                                 }
                             }

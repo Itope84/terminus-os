@@ -295,6 +295,14 @@ export interface ClaudeResultLine {
   detail?: string;
 }
 
+/** Task ids Claude started in the foreground (not jobs); bounded. */
+const foregroundTasks = new Set<string>();
+function noteForeground(id: string): void {
+  if (!id) return;
+  foregroundTasks.add(id);
+  if (foregroundTasks.size > 500) foregroundTasks.delete(foregroundTasks.values().next().value as string);
+}
+
 /** Parse one stream-json line into normalized events + session metadata.
  *  Unknown shapes are ignored (never crash on CLI drift). Pure. */
 export function claudeLine(
@@ -318,11 +326,15 @@ export function claudeLine(
     };
   }
   // Background jobs (Bash/Agent with run_in_background): Claude reports both ends as system lines.
+  // Foreground tasks (a subagent the reply waits on) report the same lines without is_backgrounded: they
+  // are steps of the reply, not jobs, so their finish is dropped too (it used to land as a job with no start
+  // and made the app close the chat's stream mid-reply). One moved to the background later counts from then.
   if (type === "system" && textOf(line.subtype) === "task_started") {
-    if (line.is_backgrounded !== true) return { events: [], unknown: false };
+    if (line.is_backgrounded !== true) { noteForeground(textOf(line.task_id)); return { events: [], unknown: false }; }
     return { events: [{ type: "background", turnId, status: "started", id: textOf(line.task_id), label: textOf(line.description) || "background job", toolId: textOf(line.tool_use_id) || undefined }], unknown: false };
   }
   if (type === "system" && textOf(line.subtype) === "task_notification") {
+    if (foregroundTasks.delete(textOf(line.task_id))) return { events: [], unknown: false };
     const st = textOf(line.status);
     return {
       events: [{
@@ -333,7 +345,15 @@ export function claudeLine(
       unknown: false,
     };
   }
-  if (type === "system" && ["task_updated", "background_tasks_changed", "task_progress"].includes(textOf(line.subtype))) {
+  if (type === "system" && textOf(line.subtype) === "task_updated") {
+    const id = textOf(line.task_id);
+    const patch = asRecord(line.patch);
+    if (patch.is_backgrounded === true && foregroundTasks.delete(id)) {
+      return { events: [{ type: "background", turnId, status: "started", id, label: textOf(patch.description) || textOf(line.description) || "background job" }], unknown: false };
+    }
+    return { events: [], unknown: false };
+  }
+  if (type === "system" && ["background_tasks_changed", "task_progress"].includes(textOf(line.subtype))) {
     return { events: [], unknown: false };
   }
   if (type === "system" && textOf(line.subtype) === "thinking_tokens") {

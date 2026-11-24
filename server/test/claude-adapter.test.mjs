@@ -177,6 +177,19 @@ describe("claudeLine: background jobs", () => {
     assert.equal(ok.summary, "Build finished (exit 0)");
     assert.equal(claudeLine({ type: "system", subtype: "task_notification", task_id: "b", status: "failed" }, "t1").events[0].status, "failed");
   });
+  it("a foreground task's finish is dropped: subagent steps are not jobs", () => {
+    claudeLine({ type: "system", subtype: "task_started", task_id: "fg1", task_type: "local_agent", is_backgrounded: false }, "t1");
+    assert.deepEqual(claudeLine({ type: "system", subtype: "task_notification", task_id: "fg1", status: "completed" }, "t1").events, []);
+    // Only once: a later unrelated finish with that id is not swallowed forever.
+    assert.equal(claudeLine({ type: "system", subtype: "task_notification", task_id: "fg1", status: "completed" }, "t1").events.length, 1);
+  });
+  it("a foreground task moved to the background starts counting then", () => {
+    claudeLine({ type: "system", subtype: "task_started", task_id: "fg2", description: "long build", is_backgrounded: false }, "t1");
+    const st = claudeLine({ type: "system", subtype: "task_updated", task_id: "fg2", patch: { is_backgrounded: true } }, "t1").events;
+    assert.equal(st.length, 1);
+    assert.equal(st[0].status, "started");
+    assert.equal(claudeLine({ type: "system", subtype: "task_notification", task_id: "fg2", status: "completed" }, "t1").events[0].status, "done");
+  });
   it("task bookkeeping lines are known and silent", () => {
     for (const subtype of ["task_updated", "background_tasks_changed"]) {
       const r = claudeLine({ type: "system", subtype }, "t1");
