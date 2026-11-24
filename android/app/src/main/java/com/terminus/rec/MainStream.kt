@@ -259,7 +259,7 @@ internal fun MainActivity.startStream(id: String) {
                                     ffull)
                                 // Last job gone: release the stream we held, unless a reply is still running
                                 // here (the stream carries its done; dropping it hid replies until the next send).
-                                if (fstatus != "started" && !backgroundJobs.any(id) && streamChat == id && !chatStore.hasLive(id)) {
+                                if (fstatus != "started" && StreamPolicy.releaseAfterJobFinish(backgroundJobs.any(id), streamChat == id, chatStore.hasLive(id))) {
                                     idleStreamHandoff(id)
                                 }
                             }
@@ -835,24 +835,21 @@ internal fun MainActivity.idleStreamHandoff(id: String) {
     // a looping goal pushes its own turn with no phone placeholder: keep
     // listening while either is live. The terminal event (or a settled
     // goal) calls back here to release it.
-    if (streamWanted(id)) {
-        if (streamChat != id) ensureStream(id)
-        return
+    val wanted = streamWanted(id)
+    // Other chats with work are only looked at when this one has no reason to keep listening.
+    val live = if (wanted) emptyList() else try { chatStore.chatsWithLive() } catch (_: Exception) { emptyList() }
+    when (val next = StreamPolicy.handoff(id, wanted, streamChat, live)) {
+        StreamPolicy.Handoff.Keep -> Unit
+        is StreamPolicy.Handoff.Open -> ensureStream(next.chat)
+        is StreamPolicy.Handoff.Adopt -> startStream(next.chat)
+        StreamPolicy.Handoff.Sleep -> stopStream()
     }
-    val other = try {
-        chatStore.chatsWithLive().filter { it != id }.lastOrNull()
-    } catch (_: Exception) { null }
-    if (other != null) startStream(other)
-    else stopStream()
 }
 
 /** True while this chat has a reason to keep its stream open with no live
  *  turn: an outstanding background job, or an active loop goal on the open thread. */
-internal fun MainActivity.streamWanted(id: String): Boolean {
-    if (backgroundJobs.any(id)) return true
-    val g = goalCache
-    return g != null && g.loop && g.status == "active" && activeSessionId == id
-}
+internal fun MainActivity.streamWanted(id: String): Boolean =
+    StreamPolicy.streamWanted(backgroundJobs.any(id), goalCache, activeSessionId == id)
 
 internal fun MainActivity.hasPlaceholder(id: String): Boolean {
     return try { chatStore.hasLive(id) } catch (_: Exception) { false }
