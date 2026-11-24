@@ -1,22 +1,17 @@
 import { networkInterfaces } from "node:os";
+import type { NetworkInterfaceInfoIPv4 } from "node:os";
 
-/** This machine's Tailscale IPv4 address, or null when Tailscale is not running. Never a LAN address. */
+const ipv4Interfaces = (): NetworkInterfaceInfoIPv4[] =>
+  Object.values(networkInterfaces()).flat().filter((i): i is NetworkInterfaceInfoIPv4 => !!i && i.family === "IPv4");
+
+/** This machine's Tailscale address (the 100.x range), or null when Tailscale is not running. Never a LAN address. */
 export function tailnetIp(): string | null {
-  try {
-    const { execSync } = require("node:child_process") as typeof import("node:child_process");
-    const out = execSync("tailscale ip -4 2>/dev/null", { encoding: "utf8" }).trim().split("\n")[0]?.trim();
-    if (out && /^100\./.test(out)) return out;
-  } catch {}
-  const all = Object.values(networkInterfaces()).flat().filter(Boolean) as import("node:os").NetworkInterfaceInfoIPv4[];
-  return all.find((i) => i.family === "IPv4" && i.address.startsWith("100."))?.address ?? null;
+  return ipv4Interfaces().find((i) => i.address.startsWith("100."))?.address ?? null;
 }
+
 /** The address advertised to clients (media URLs): Tailscale first, then the LAN, then loopback. */
 export function localIp(): string {
-  const tail = tailnetIp();
-  if (tail) return tail;
-  const all = Object.values(networkInterfaces()).flat().filter(Boolean) as import("node:os").NetworkInterfaceInfoIPv4[];
-  const lan = all.find((i) => i.family === "IPv4" && !i.internal);
-  return lan?.address || "127.0.0.1";
+  return tailnetIp() ?? ipv4Interfaces().find((i) => !i.internal)?.address ?? "127.0.0.1";
 }
 
 /** The port this server listens on. */
