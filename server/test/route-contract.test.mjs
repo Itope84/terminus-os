@@ -202,3 +202,12 @@ test("the browser login cookie is accepted as a credential", async () => {
   assert.equal(res.status, 200);
   assert.equal(res.json.turns, 0); // a count of unsettled turns; none on a fresh server
 });
+
+test("the commands endpoint lists a backend's commands instead of failing", async () => {
+  // Claude's command list needs no login or running backend, so a 200 here proves the handler itself works.
+  // (The list is empty in this throwaway HOME; what matters is that it is a list, not a server error.)
+  const res = await call("GET", "/api/commands?backend=claude", { auth: true });
+  assert.equal(res.status, 200, res.text);
+  assert.equal(res.json.backend, "claude");
+  assert.ok(Array.isArray(res.json.commands), "expected a command list");
+});
