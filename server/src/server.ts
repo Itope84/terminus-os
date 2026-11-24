@@ -7,43 +7,33 @@ if (typeof (Promise as any).withResolvers === "undefined") {
     return { promise, resolve, reject };
   };
 }
-import { createServer, IncomingMessage, ServerResponse } from "node:http";
-import { safeNavUrl } from "./nav-guard.js";
-import { readFile } from "node:fs/promises";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { json, requireAuth, readJsonBody } from "./http.js";
-import { tailnetIp, localIp, mediaBase, port } from "./net.js";
-import { getPage, handleOpen, handleScrape, handleAct, handleCookies, handleProfileEnsure, handleProfileDelete, handleProfileList, closeBrowsers, startProfileReaper } from "./browser.js";
-import { handleBackendFork, handleBackendCommand } from "./backend-admin.js";
+
+/** Process entry point.
+ *
+ *  Answers the few public routes (health, the gallery shell, share pages, login), checks the credential,
+ *  hands everything else to the route table in routes.ts, and owns startup, shutdown and crash handling.
+ *  Browser automation is in browser.ts, the HTTP helpers in http.ts, the media gallery in media.ts. */
 
 import { execSync } from "node:child_process";
+import { readFile } from "node:fs/promises";
+import { createServer, IncomingMessage, ServerResponse } from "node:http";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { bearerMatches, queryTokenOk } from "./auth.js";
+import { getDescriptor, parseBackendId } from "./backends/registry.js";
+import { closeBrowsers, startProfileReaper } from "./browser.js";
+import { json, requireAuth, readJsonBody } from "./http.js";
+import { handleTile } from "./map-tiles.js";
+import { handleMedia, uploadAuthed, debugChatHtml, debugListHtml } from "./media.js";
+import { tailnetIp, localIp, mediaBase, port } from "./net.js";
+import { backendOk } from "./opencode-proxy.js";
+import { noteAppBuild, setAgentBusyProbe, setRunningChatsProbe } from "./phone-browser.js";
+import { apiRoutes, lateRoutes, dispatch } from "./routes.js";
+import { setSharePassword, openShareSession, shareSessionFolder, shareCookieName, sharePathAllowed, validFolderName, hasShareFolder, shareUnlockHtml, shareFolderHtml } from "./share.js";
 
 /** App builds seen via /health?v= (one log line each). */
 const seenAppBuilds = new Set<string>();
 
-
-import { bearerMatches, mintLinkToken, queryTokenOk } from "./auth.js";
-import { handlePbStream, handlePbReply, handlePbCmd, handlePbStatus, noteAppBuild, setAgentBusyProbe, setRunningChatsProbe } from "./phone-browser.js";
-import { handleApprovalRequest, handleApprovalDecide } from "./approvals.js";
-
-
-
-/** Media gallery lives in ./media.ts (same process/port/auth).
- *  server.ts keeps browser automation + routing only. */
-import { handleMedia, uploadAuthed, debugChatHtml, debugListHtml, handleRepoTree, handleRepoFile } from "./media.js";
-import { handleBackends, handleModels, handleChat, handleCommands, handleSessions, handleBindings, handleStop, handleSteer, handleQueuedCancel, handleCompact, handleContext, handleSessionDelete, handleFork, handleTitle, handleTitleSet, handleProgress, handleHistory, handleTurn, handleSync, handleStream, handleDefaultsGet, handleDefaultsPost, backendOk } from "./opencode-proxy.js";
-import { getDescriptor, parseBackendId } from "./backends/registry.js";
-import { handleInboxPost, handleInboxGet, handleUnread, streamChats } from "./inbox.js";
-import { handleWake } from "./wake.js";
-import { handleLocationGet, handleLocationReply } from "./location.js";
-import { handleTile } from "./map-tiles.js";
-import { handleListen } from "./listen.js";
-import { busyTurns } from "./opencode-proxy.js";
-import { handleGoalArm, handleGoalControl, handleGoalGet } from "./goals.js";
-import { handleBackgroundGet } from "./background-log.js";
-import { handleBackgroundStop } from "./background-stop.js";
-import { setSharePassword, openShareSession, shareSessionFolder, shareCookieName, sharePathAllowed, validFolderName, hasShareFolder, shareUnlockHtml, shareFolderHtml } from "./share.js";
 /** Commit the running server was built from (best-effort): stamped into
  *  the debug mirror so staleness is visible — compare with HEAD to know
  *  whether the mirror needs rebuilding. */
@@ -252,106 +242,12 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     return res.end(JSON.stringify({ ok: true }));
   }
   if (!requireAuth(req, res)) return;
-  // Short-lived, GET-only stand-in for the master token in WebView URLs. Master token required to mint.
-  if (reqPath === "/api/link-token" && req.method === "POST") {
-    res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" });
-    return res.end(JSON.stringify(mintLinkToken()));
-  }
-  if (reqPath === "/api/approvals/request" && req.method === "POST") return handleApprovalRequest(req, res, json, readJsonBody);
-  if (reqPath === "/api/approvals/decide" && req.method === "POST") return handleApprovalDecide(req, res, json, readJsonBody);
-  if (reqPath === "/api/pb/stream" && req.method === "GET") return handlePbStream(req, res);
-  if (reqPath === "/api/pb/reply" && req.method === "POST") return handlePbReply(req, res, json, readJsonBody);
-  if (reqPath === "/api/pb/cmd" && req.method === "POST") return handlePbCmd(req, res, json, readJsonBody);
-  if (reqPath === "/api/pb/status" && req.method === "GET") return handlePbStatus(req, res, json);
-  if (reqPath === "/api/backends" && req.method === "GET") return handleBackends(req, res, json);
-  if (reqPath === "/api/models" && req.method === "GET") return handleModels(req, res, json);
-  if (reqPath === "/api/commands" && req.method === "GET") return handleCommands(req, res, json);
-  if (reqPath === "/api/sessions" && req.method === "GET") return handleSessions(req, res, json);
-  if (reqPath === "/api/bindings" && req.method === "GET") return handleBindings(req, res, json);
-  if (reqPath === "/api/defaults" && req.method === "GET") return handleDefaultsGet(req, res, json);
-  if (reqPath === "/api/defaults" && req.method === "POST") return handleDefaultsPost(req, res, json);
-  if (reqPath === "/api/chat" && req.method === "POST") return handleChat(req, res, json);
-  if (reqPath === "/api/stream" && req.method === "GET") return handleStream(req, res);
-  if (reqPath === "/api/inbox" && req.method === "POST") return handleInboxPost(req, res, json);
-  if (reqPath === "/api/inbox" && req.method === "GET") return handleInboxGet(req, res, json);
-  if (reqPath === "/api/unread" && req.method === "GET") return handleUnread(req, res, json);
-  if (reqPath === "/api/streams" && req.method === "GET") return json(res, 200, { chats: streamChats() });
-  if (reqPath === "/api/wake" && req.method === "GET") return handleWake(req, res);
-  if (reqPath === "/api/location" && req.method === "GET") return handleLocationGet(req, res, json);
-  if (reqPath === "/api/location/reply" && req.method === "POST") {
-    const parsed = await readJsonBody(req, 2000);
-    if (!parsed.ok) return json(res, parsed.status, { error: parsed.error });
-    return handleLocationReply(res, json, parsed.value);
-  }
-  if (reqPath === "/api/listen" && req.method === "POST") return handleListen(req, res, json);
-  if (reqPath === "/api/listen/stop" && req.method === "POST") return handleListen(req, res, json, true);
-  if (reqPath === "/api/busy" && req.method === "GET") return json(res, 200, { turns: busyTurns() });
-  if (reqPath === "/api/stop" && req.method === "POST") return handleStop(req, res, json);
-  if (reqPath === "/api/title" && req.method === "GET") return handleTitle(req, res, json);
-  if (reqPath === "/api/title" && req.method === "POST") return handleTitleSet(req, res, json);
-  if (reqPath === "/api/compact" && req.method === "POST") return handleCompact(req, res, json);
-  if (reqPath === "/api/context" && req.method === "GET") return handleContext(req, res, json);
-  if (reqPath === "/api/session-delete" && req.method === "POST") return handleSessionDelete(req, res, json);
-  if (reqPath === "/api/fork" && req.method === "POST") return handleFork(req, res, json);
-  if (reqPath === "/api/steer" && req.method === "POST") return handleSteer(req, res, json);
-  if (reqPath === "/api/queued-cancel" && req.method === "POST") return handleQueuedCancel(req, res, json);
-  if (reqPath === "/api/backend-fork" && req.method === "POST") return handleBackendFork(req, res, json);
-  if (reqPath === "/api/backend-command" && req.method === "POST") return handleBackendCommand(req, res, json);
-  if (reqPath === "/api/goals/arm" && req.method === "POST") return handleGoalArm(req, res, json);
-  if (reqPath === "/api/goals/pause" && req.method === "POST") return handleGoalControl(req, res, json, "pause");
-  if (reqPath === "/api/goals/resume" && req.method === "POST") return handleGoalControl(req, res, json, "resume");
-  if (reqPath === "/api/goals/remove" && req.method === "POST") return handleGoalControl(req, res, json, "remove");
-  if (reqPath === "/api/goals" && req.method === "GET") return handleGoalGet(req, res, json);
-  if (reqPath === "/api/background" && req.method === "GET") return handleBackgroundGet(req, res, json);
-  if (reqPath === "/api/background/stop" && req.method === "POST") return handleBackgroundStop(req, res, json);
-  if (reqPath === "/api/progress" && req.method === "GET") return handleProgress(req, res, json);
-  if (reqPath === "/api/turn" && req.method === "GET") return handleTurn(req, res, json);
-  if (reqPath === "/api/sync" && req.method === "GET") return handleSync(req, res, json);
-  if (reqPath === "/api/history" && req.method === "GET") return handleHistory(req, res, json);
-  if (reqPath === "/api/repo-tree" && req.method === "GET") return handleRepoTree(req, res, { json, baseUrl: mediaBase() });
-  if (reqPath.startsWith("/repo/") && req.method === "GET") {
-    if (await handleRepoFile(req, res, reqPath.replace("/repo/", ""))) return;
-  }
-  if (reqPath === "/open" && req.method === "POST") return handleOpen(req, res);
-  if (reqPath === "/scrape" && req.method === "POST") return handleScrape(req, res);
-  if (reqPath === "/act" && req.method === "POST") return handleAct(req, res);
-  if (reqPath === "/cookies" && req.method === "POST") return handleCookies(req, res);
-  if (reqPath === "/profiles" && req.method === "GET") return handleProfileList(res);
-  if (reqPath === "/profile" && req.method === "POST") return handleProfileEnsure(req, res);
-  if (reqPath.startsWith("/profile") && req.method === "DELETE") return handleProfileDelete(req, res);
+  const ctx = { req, res, path: reqPath };
+  if (await dispatch(apiRoutes, ctx)) return;
   if (await handleMedia(req, res, reqPath, { json, baseUrl: mediaBase() })) return;
-  if (req.url?.startsWith("/screenshot") && req.method === "GET") {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const target = url.searchParams.get("url");
-    const profile = url.searchParams.get("profile") || undefined;
-    if (!target) return json(res, 400, { error: "missing ?url=" });
-    const nav = safeNavUrl(target);
-    if (!nav) return json(res, 400, { error: "url must be http(s)" });
-    let holder: Awaited<ReturnType<typeof getPage>>;
-    try {
-      holder = await getPage(profile);
-    } catch (e) { return json(res, 400, { error: String(e) }); }
-    const { page } = holder;
-    try {
-      await page.goto(nav, { waitUntil: "networkidle", timeout: 30000 });
-      const buf = await page.screenshot({ fullPage: true });
-      res.writeHead(200, { "Content-Type": "image/png", "Content-Length": buf.length });
-      res.end(buf);
-    } catch (e) { json(res, 500, { error: String(e) }); } finally { await holder.done(); }
-    return;
-  }
-  if (req.url?.startsWith("/scrape") && req.method === "GET") {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const target = url.searchParams.get("url");
-    if (!target) return json(res, 400, { error: "missing ?url=" });
-    // delegate to handleScrape via fake body
-    const fakeReq = { [Symbol.asyncIterator]: async function* () { yield JSON.stringify({ url: target }); } } as unknown as IncomingMessage;
-    (fakeReq as any).headers = {};
-    return handleScrape(fakeReq as IncomingMessage, res);
-  }
+  if (await dispatch(lateRoutes, ctx)) return;
   json(res, 404, { error: "not found, use POST /open, POST /scrape, POST /act, POST /cookies, GET /profiles, POST /profile, GET /terminus or GET /screenshot?url=" });
 };
-
 
 /** Where to listen. Default: the Tailscale address when Tailscale is up, otherwise loopback only, so the
  *  server is never reachable from the local network by accident. Set HOST=0.0.0.0 to listen everywhere. */

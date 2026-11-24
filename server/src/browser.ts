@@ -430,3 +430,36 @@ export async function closeBrowsers(): Promise<void> {
   profiles.clear();
   if (browser) await browser.close();
 }
+
+/** GET /screenshot?url=...&profile=...: a full-page PNG of a page. */
+export async function handleScreenshotGet(req: IncomingMessage, res: ServerResponse) {
+  const url = new URL(req.url ?? "", `http://${req.headers.host}`);
+  const target = url.searchParams.get("url");
+  const profile = url.searchParams.get("profile") || undefined;
+  if (!target) return json(res, 400, { error: "missing ?url=" });
+  const nav = safeNavUrl(target);
+  if (!nav) return json(res, 400, { error: "url must be http(s)" });
+  let holder: Awaited<ReturnType<typeof getPage>>;
+  try {
+    holder = await getPage(profile);
+  } catch (e) { return json(res, 400, { error: String(e) }); }
+  const { page } = holder;
+  try {
+    await page.goto(nav, { waitUntil: "networkidle", timeout: 30000 });
+    const buf = await page.screenshot({ fullPage: true });
+    res.writeHead(200, { "Content-Type": "image/png", "Content-Length": buf.length });
+    res.end(buf);
+  } catch (e) { json(res, 500, { error: String(e) }); } finally { await holder.done(); }
+  return;
+}
+
+/** GET /scrape?url=...: the same as POST /scrape with {url}. */
+export async function handleScrapeGet(req: IncomingMessage, res: ServerResponse) {
+  const url = new URL(req.url ?? "", `http://${req.headers.host}`);
+  const target = url.searchParams.get("url");
+  if (!target) return json(res, 400, { error: "missing ?url=" });
+  // delegate to handleScrape via fake body
+  const fakeReq = { [Symbol.asyncIterator]: async function* () { yield JSON.stringify({ url: target }); } } as unknown as IncomingMessage;
+  (fakeReq as any).headers = {};
+  return handleScrape(fakeReq as IncomingMessage, res);
+}

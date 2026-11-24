@@ -13,6 +13,7 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { apiRoutes, lateRoutes, routeMatches } from "../dist/routes.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const TOKEN = "contract-test-token-0123456789";
@@ -105,6 +106,20 @@ async function call(method, path, { auth, headers = {}, body, ms = 2500 } = {}) 
 }
 
 const describeRoute = ([m, p]) => `${m} ${p}`;
+
+test("the route table is exactly the documented list", () => {
+  // Every documented route is answered by exactly one table entry, and every table entry is documented.
+  const table = [...apiRoutes];
+  const unmatched = GATED.filter(([m, p]) => !table.some((r) => routeMatches(r, m, p))).map(describeRoute);
+  assert.deepEqual(unmatched, [], "documented in this test but missing from routes.ts");
+  const undocumented = table
+    .filter((r) => !GATED.some(([m, p]) => routeMatches(r, m, p)))
+    .map((r) => `${r.method} ${r.path}${r.prefix ? "*" : ""}`);
+  assert.deepEqual(undocumented, [], "in routes.ts but not documented in this test");
+  assert.equal(table.length, GATED.length);
+  const late = lateRoutes.map((r) => `${r.method} ${r.path}${r.prefix ? "*" : ""}`);
+  assert.deepEqual(late, ["GET /screenshot*", "GET /scrape*"]);
+});
 
 test("every protected route answers 401 without a credential", async () => {
   const failures = [];
