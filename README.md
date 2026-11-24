@@ -201,6 +201,7 @@ The Android app asks for these permissions, each for one feature:
 - Keep credentials and local runtime state out of the repository. State lives under `~/.config/terminus/` and `.run/`, both ignored by git.
 - The notebook is personal data. Weekly notes are plain text under `notebook/` and are git-ignored. `notebook/user.md` ships as an empty placeholder for your profile, and `make install` tells git to ignore your local edits to it. `agentbook/` holds per-chat working notes and is ignored the same way.
 - Each tool's own README covers its setup and operations.
+- The Android screen logic is split by area. `MainActivity.kt` holds the activity's state and lifecycle, and each `Main<Area>.kt` beside it (for example `MainSend.kt`, `MainThread.kt`, `MainSettings.kt`) holds that area's behaviour as extension functions of `MainActivity`. `MainTypes.kt` has the small types and constants they share.
 - Contributions are welcome; see [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECURITY.md`](SECURITY.md).
 
 ## License
