@@ -25,8 +25,9 @@ test("models that may train on data are refused unless allowed", async () => {
   assert.equal(trainsOnData("opencode/big-pickle", { TERMINUS_OPENCODE_ALLOW_TRAINING: "1" }), false);
 });
 
-test("Claude turns run with telemetry, error reports and feedback uploads off", async () => {
+test("Claude turns run with error reports and feedback uploads off, feature flags on", async () => {
   const { claudeEnv } = await import("../dist/backends/claude.js");
   const env = claudeEnv();
-  for (const k of ["DISABLE_TELEMETRY", "DISABLE_ERROR_REPORTING", "DISABLE_FEEDBACK_COMMAND", "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"]) assert.equal(env[k], "1", k);
+  for (const k of ["DISABLE_ERROR_REPORTING", "DISABLE_FEEDBACK_COMMAND", "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY"]) assert.equal(env[k], "1", k);
+  for (const k of ["DISABLE_TELEMETRY", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"]) assert.equal(env[k], undefined, k);
 });

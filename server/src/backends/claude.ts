@@ -229,12 +229,12 @@ export const CLAUDE_DISALLOWED_TOOLS = [
   ]),
   ...CLAUDE_DENY_BASH,
 ];
+// Usage metrics stay on (no code, prompts or paths; turning them off also stops feature flags, so
+// new Claude Code features would arrive late).
 export const CLAUDE_PRIVACY_ENV: Readonly<Record<string, string>> = {
-  DISABLE_TELEMETRY: "1",
   DISABLE_ERROR_REPORTING: "1",
   DISABLE_FEEDBACK_COMMAND: "1",
   CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY: "1",
-  CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
 };
 /** Child env: explicit allowlist minus ANTHROPIC_API_KEY (subscription
  *  login stays authoritative). Pure, unit-tested. */
@@ -251,9 +251,8 @@ export function claudeEnv(compactAt?: number | null, chatId?: string | null): Re
     if (typeof v === "string" && v) out[k] = v;
   }
   delete out.ANTHROPIC_API_KEY;
-  // Privacy: chats carry the owner's notebook and files. Nothing beyond the model call itself leaves
-  // the Mac: no usage metrics, error reports, feedback/bug/share uploads or quality surveys (whose
-  // "yes" uploads the transcript). Model training is an account setting, not something set here.
+  // Privacy: chats carry the owner's notebook and files. No error reports, feedback/bug/share uploads
+  // or quality surveys (whose "yes" uploads the transcript). Model training is an account setting, not something set here.
   Object.assign(out, CLAUDE_PRIVACY_ENV);
   // The agentbook scripts take their chat from here, so an agent can only reach its own book.
   if (chatId) out.TERMINUS_AGENTBOOK = `claude/${chatId}`;
