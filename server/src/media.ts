@@ -20,7 +20,7 @@ import { once } from "node:events";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { homedir, freemem, totalmem, loadavg, uptime as hostUptime, cpus } from "node:os";
-import { bearerMatches, uploadKeyMatches } from "./auth.js";
+import { authorized, bearerMatches, uploadKeyMatches } from "./auth.js";
 import { handleSysmon, startSysmon } from "./sysmon.js";
 import { repoRoot } from "./paths.js";
 import { AGENTBOOK_DIR } from "./agentbook.js";
@@ -1080,7 +1080,9 @@ export function uploadAuthed(req: IncomingMessage): boolean {
   const h = String(req.headers["x-upload-token"] || "");
   if (h !== "" && uploadKeyMatches(h)) return true;
   const a = String(req.headers.authorization || "");
-  return a.startsWith("Bearer ") && bearerMatches(a.slice(7));
+  if (a.startsWith("Bearer ") && bearerMatches(a.slice(7))) return true;
+  // The web app signs in with the login cookie (same check as every other route).
+  return authorized(req);
 }
 
 export function setUploads(open: boolean, minutes = 0): { open: boolean } {
