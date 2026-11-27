@@ -14,7 +14,12 @@ Personal hub: skills, scripts, browser. See README.md.
 
 ## Web fetch routing — canonical, others point here
 
-- Climb, never retry a rejected rung: backend-native web fetch when available (OpenCode `webfetch`, Codex `web__run`, Claude `WebFetch`) → `tools/fetch` (`tools/fetch/.venv/bin/python tools/fetch/fetch.py <url> [--raw]`) → `browser` Playwright (`:9009`, bearer `$(cat ~/.config/terminus/browser/token)`; headless, deterministic, no model cost) → `browser-mobile` skill (the phone's agent tab; for interaction such as clicks and forms, logged-in phone sessions, or proving it on-device — needs the app open). If a backend has no native fetch tool, start at `tools/fetch`. Akamai deny = stop rule, offer manual. Bot wall surviving a logged-in profile = stop and report, never attempt captcha solving. Payment never moves without the human's direct go-ahead in chat.
+- Reading a page, climb, never retry a rejected rung: backend-native web fetch when available (OpenCode `webfetch`, Claude `WebFetch`) → `tools/fetch` (`tools/fetch/.venv/bin/python tools/fetch/fetch.py <url> [--raw]`). If a backend has no native fetch tool, start at `tools/fetch`.
+- Using a browser (clicks, forms, logged-in pages, anything a fetch can't see), three tiers in order:
+  1. Headless Playwright on this Mac: `POST :9009/open|/scrape|/act` (bearer `$(cat ~/.config/terminus/browser/token)`; login profiles via `/profile`). Deterministic, no model cost. The default.
+  2. The agents' own Chrome through Chrome DevTools MCP (`mcp__chrome-devtools__*`, both Claude and OpenCode). A real, visible Chrome on `127.0.0.1:9222` with its own profile (`tools/chrome-agent`); use it when headless is blocked or the page needs a real browser. Open your own page; never close pages you didn't open.
+  3. Claude in Chrome (`mcp__claude-in-chrome__*`, Claude only): the owner's everyday Chrome with their sign-ins. Last resort; say what you're about to do there first.
+  The phone's browser (`browser-mobile`) is Android only; on iPhone there is none. Akamai deny = stop rule, offer manual. Bot wall surviving a logged-in profile = stop and report, never attempt captcha solving. Payment never moves without the human's direct go-ahead in chat.
 - For anything that must run on the phone, read `skills/browser-mobile/SKILL.md`; `GET /api/pb/status` first, ask the human to open the app if offline.
 - This section is canonical; `tools/fetch/README.md` and `server/README.md` are pointers.
 
