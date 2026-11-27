@@ -587,6 +587,15 @@ export function mapOpencodeModels(
   return out;
 }
 
+/** Models whose provider may keep prompts to train on (OpenCode's Zen and Go data tables, Nov 2026):
+ *  Go's "Contributor" models (priced for training permission), Zen's free models that train or log
+ *  (Big Pickle, Tidepool, Seaglass, Iceman, Flint 40B, NVIDIA Nemotron). Terminus hides and refuses
+ *  them, because chats carry the owner's notebook and files. TERMINUS_OPENCODE_ALLOW_TRAINING=1 lifts it. */
+const TRAINING_MODELS = /contributor|big-pickle|tidepool|seaglass|iceman|flint-40b|nemotron/i;
+export function trainsOnData(modelRef: string, env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.TERMINUS_OPENCODE_ALLOW_TRAINING !== "1" && TRAINING_MODELS.test(modelRef);
+}
+
 /** Live opencode model fetch (throws on unreachable/slow/auth failure).
  *  M3 seam: the opencode adapter delegates here; the handler keeps its
  *  exact response shape below. provider.list is still fetched alongside
@@ -604,10 +613,10 @@ export async function fetchOpencodeModels(): Promise<ModelEntry[]> {
   void _providers;
   const rows = (models as { data?: unknown }).data;
   const listed = Array.isArray(rows) ? mapOpencodeModels(rows) : [];
-  if (listed.length) return listed;
+  if (listed.length) return listed.filter((m) => !trainsOnData(m.id));
   // OpenCode 1.x has no model.list route (the path falls through to its web UI, so the SDK reads
   // nothing usable). Its connected providers and their models are at /config/providers.
-  return mapOpencodeModels(rowsFromConfigProviders(await fetchConfigProviders()));
+  return mapOpencodeModels(rowsFromConfigProviders(await fetchConfigProviders())).filter((m) => !trainsOnData(m.id));
 }
 
 async function fetchConfigProviders(): Promise<unknown> {
@@ -1563,6 +1572,10 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse, json
     ref = toModelRef(model);
     if (!ref) {
       json(res, 400, { error: "bad model reference; want provider/model" });
+      return;
+    }
+    if (trainsOnData(model)) {
+      json(res, 400, { error: "That model's provider may train on your data, so Terminus doesn't use it." });
       return;
     }
   }
