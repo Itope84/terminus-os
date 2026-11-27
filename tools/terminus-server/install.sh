@@ -14,7 +14,8 @@ mkdir -p "$HOME/.config/terminus" "$HOME/Library/Logs/terminus"
 if [ ! -f "$ENVF" ]; then
   cat > "$ENVF" <<ENV
 # Terminus server settings (sourced by the LaunchAgent). One KEY=value per line.
-OPENCODE_BASE_URL=http://127.0.0.1:8080
+OPENCODE_BASE_URL=http://127.0.0.1:8093
+OPENCODE_PASS=\$(cat "\$HOME/.config/terminus/secrets/opencode2.pass" 2>/dev/null)
 TERMINUS_TLS_CERT=
 TERMINUS_TLS_KEY=
 TERMINUS_TLS_PORT=9443
