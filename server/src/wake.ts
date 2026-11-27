@@ -14,6 +14,17 @@ const PREVIEW_CHARS = 160;
 
 const clients = new Set<ServerResponse>();
 
+/** In-process listeners (the web app's push and chat index, pwa/): told about every wake event,
+ *  whether or not a phone holds the stream. */
+type WakeListener = (event: "done" | "inbox", data: Record<string, unknown>) => void;
+const listeners: WakeListener[] = [];
+export function onWake(fn: WakeListener): void { listeners.push(fn); }
+function tell(event: "done" | "inbox", data: Record<string, unknown>): void {
+  for (const fn of listeners) {
+    try { fn(event, data); } catch { /* a listener never breaks delivery */ }
+  }
+}
+
 export function wakeClientCount(): number {
   return clients.size;
 }
@@ -36,12 +47,14 @@ export function wakePreview(text: string): string {
 
 /** A reply the person sent for has settled. Cancelled turns never call this. */
 export function wakeDone(chatId: string, turnId: string, text: string, error?: string): void {
+  tell("done", { chatId, turnId, text, failed: Boolean(error), error: error ?? "" });
   if (!clients.size) return;
   send("done", { chatId, turnId, preview: wakePreview(error ? "" : text), failed: Boolean(error) });
 }
 
 /** A delivery landed in the inbox. Content stays in /api/inbox; the phone pulls it. */
-export function wakeInbox(entry: { job: string; chat?: string; at: number; kind?: string }): void {
+export function wakeInbox(entry: { job: string; chat?: string; at: number; kind?: string; title?: string; body?: string; priority?: string }): void {
+  tell("inbox", { ...entry });
   if (!clients.size) return;
   send("inbox", { job: entry.job, ...(entry.chat ? { chat: entry.chat } : {}), at: entry.at, ...(entry.kind ? { kind: entry.kind } : {}) });
 }

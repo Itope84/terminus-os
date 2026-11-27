@@ -17,6 +17,9 @@ if (typeof (Promise as any).withResolvers === "undefined") {
 import { execSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
+import { startTls } from "./tls.js";
+import { handleApp } from "./pwa/static.js";
+import { initPwa } from "./pwa/index.js";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bearerMatches, queryTokenOk } from "./auth.js";
@@ -81,9 +84,13 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     return json(res, 200, { ok: true, mediaUrl: `http://${localIp()}:${port}/terminus/`, backend });
   }
   if ((rawPath === "/" || rawPath === "") && req.method === "GET") {
-    res.writeHead(302, { Location: "/terminus", "Access-Control-Allow-Origin": "*" });
+    // Over HTTPS the root is the web app; plain HTTP keeps the gallery.
+    const tls = Boolean((req.socket as { encrypted?: boolean }).encrypted);
+    res.writeHead(302, { Location: tls ? "/app/" : "/terminus", "Access-Control-Allow-Origin": "*" });
     return res.end();
   }
+  // The web app's files (pwa/static.ts): public, they carry no data.
+  if (await handleApp(req, res, reqPath === "/app" ? rawPath : reqPath)) return;
   // The gallery shell is intentionally public so a normal browser can load
   // the token-entry UI. Its API calls remain protected below.
   if (reqPath === "/terminus" && req.method === "GET" && (req.headers.accept || "").includes("text/html")) {
@@ -237,8 +244,13 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     res.writeHead(200, {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",
-      "Set-Cookie": `headless-token=${encodeURIComponent(token)}; HttpOnly; Path=/; SameSite=Lax; Max-Age=2592000`,
+      // A year: the home-screen app signs in once. Secure over HTTPS.
+      "Set-Cookie": `headless-token=${encodeURIComponent(token)}; HttpOnly; Path=/; SameSite=Lax; Max-Age=31536000${(req.socket as { encrypted?: boolean }).encrypted ? "; Secure" : ""}`,
     });
+    return res.end(JSON.stringify({ ok: true }));
+  }
+  if (reqPath === "/terminus-logout" && req.method === "POST") {
+    res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store", "Set-Cookie": "headless-token=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0" });
     return res.end(JSON.stringify({ ok: true }));
   }
   if (!requireAuth(req, res)) return;
@@ -268,6 +280,10 @@ function listenRetry(srv: ReturnType<typeof createServer>, host: string, onUp: (
   srv.once("listening", onUp);
   attempt();
 }
+
+initPwa();
+// HTTPS for the home-screen app (service worker, push and the microphone need it): tls.ts.
+startTls(handler);
 
 listenRetry(server, bindHost, () => {
   console.log(`server listening on http://${bindHost}:${port} — bearer authentication enabled`);

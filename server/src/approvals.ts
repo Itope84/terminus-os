@@ -30,6 +30,20 @@ const MAX_PENDING = 20;
 const pending = new Map<string, Pending>();
 let lastNotify = 0;
 
+/** The web app (pwa/) hears every request and its end, and can list what's open. */
+type ApprovalView = Pending["view"];
+type ApprovalListener = (event: "approval" | "approval_cancel", data: ApprovalView | { id: string }) => void;
+const approvalListeners: ApprovalListener[] = [];
+export function onApproval(fn: ApprovalListener): void { approvalListeners.push(fn); }
+function tellApproval(event: "approval" | "approval_cancel", data: ApprovalView | { id: string }): void {
+  for (const fn of approvalListeners) {
+    try { fn(event, data); } catch { /* never breaks the request */ }
+  }
+}
+export function pendingApprovals(): ApprovalView[] {
+  return [...pending.values()].map((p) => p.view);
+}
+
 const clip = (v: unknown, n: number): string => (typeof v === "string" ? v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").slice(0, n) : "");
 
 /** Ask the person. Resolves allow, deny, or timeout (callers treat timeout as deny). */
@@ -49,10 +63,12 @@ export function askPhone(opts: { source: string; title: string; detail?: string;
     const timer = setTimeout(() => {
       pending.delete(id);
       phoneSend("approval_cancel", { id });
+      tellApproval("approval_cancel", { id });
       resolve("timeout");
     }, ms);
     pending.set(id, { view, resolve, timer });
     const delivered = phoneSend("approval", view);
+    tellApproval("approval", view);
     // Not connected (app closed): a notification brings the person in, and the
     // request is replayed when the phone channel connects. At most one per 20s.
     if (!delivered && Date.now() - lastNotify > 20_000) {
@@ -94,6 +110,8 @@ export async function handleApprovalDecide(req: IncomingMessage, res: ServerResp
   if (!p) return json(res, 404, { error: "unknown or already answered" });
   clearTimeout(p.timer);
   pending.delete(id);
+  phoneSend("approval_cancel", { id });
+  tellApproval("approval_cancel", { id });
   p.resolve(d);
   json(res, 200, { ok: true });
 }

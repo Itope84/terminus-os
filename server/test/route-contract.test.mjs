@@ -36,6 +36,10 @@ const GATED = [
   ["GET", "/api/turn"], ["GET", "/api/sync"], ["GET", "/api/history"], ["GET", "/api/repo-tree"],
   ["GET", "/repo/README.md"], ["POST", "/open"], ["POST", "/scrape"], ["POST", "/act"], ["POST", "/cookies"],
   ["GET", "/profiles"], ["POST", "/profile"], ["DELETE", "/profile/demo"],
+  // The web app (pwa/index.ts)
+  ["GET", "/api/pwa/chats"], ["POST", "/api/pwa/chats"], ["POST", "/api/pwa/chats/read"], ["POST", "/api/pwa/chats/delete"],
+  ["GET", "/api/pwa/events"], ["POST", "/api/pwa/presence"], ["GET", "/api/pwa/approvals"], ["GET", "/api/pwa/push"],
+  ["POST", "/api/pwa/push/subscribe"], ["POST", "/api/pwa/push/unsubscribe"], ["POST", "/api/pwa/push/test"],
 ];
 
 /** Gated routes served by the media module and the two late browser GETs. */
@@ -171,6 +175,15 @@ test("public routes", async () => {
   // the bare root bounces to the gallery shell
   res = await call("GET", "/");
   assert.equal(res.status, 302); assert.equal(res.headers.get("location"), "/terminus");
+  // the web app's files are public (pwa/static.ts); unbuilt here, so the page answers 503 with how to build it
+  res = await call("GET", "/app/");
+  assert.equal(res.status, 503);
+  res = await call("GET", "/app/chat/s-1");
+  assert.equal(res.status, 503);
+  // logging out only clears the cookie
+  res = await call("POST", "/terminus-logout", { body: {} });
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get("set-cookie") ?? "", /Max-Age=0/);
   // the gallery shell (token entry UI) and the debug shells are public HTML; their data calls are protected
   for (const p of ["/terminus", "/debug/chat", "/debug/list"]) {
     res = await call("GET", p, { headers: { accept: "text/html" } });

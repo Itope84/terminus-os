@@ -167,6 +167,31 @@ export function claudeDescriptor(available: boolean, authenticated: boolean): Ba
  *  (secrets, keys, auth, notes, dotenv files) for Read/Edit/Write.
  *  Residual: Bash text patterns are best-effort (a script that opens a file itself is not
  *  matched), so file-tool path denies remain the strong boundary. No --dangerously-skip-permissions. */
+/** Browser tiers for Claude (AGENTS.md, Web fetch routing). Off unless set:
+ *    TERMINUS_CLAUDE_MCP_CONFIG=<file>  extra MCP servers (e.g. chrome-devtools) via --mcp-config;
+ *                                       every server in it is allowed (mcp__<name>__*)
+ *    TERMINUS_CLAUDE_CHROME=1           Claude in Chrome (--chrome): the Mac's signed-in Chrome */
+export function claudeBrowserArgs(env: NodeJS.ProcessEnv = process.env): string[] {
+  const out: string[] = [];
+  const cfg = (env.TERMINUS_CLAUDE_MCP_CONFIG || "").trim();
+  if (cfg) out.push("--mcp-config", cfg);
+  if (env.TERMINUS_CLAUDE_CHROME === "1") out.push("--chrome");
+  return out;
+}
+
+export function claudeBrowserTools(env: NodeJS.ProcessEnv = process.env, readFile: (p: string) => string = (p) => readFileSync(p, "utf8")): string[] {
+  const tools: string[] = [];
+  const cfg = (env.TERMINUS_CLAUDE_MCP_CONFIG || "").trim();
+  if (cfg) {
+    try {
+      const servers = (JSON.parse(readFile(cfg)) as { mcpServers?: Record<string, unknown> }).mcpServers ?? {};
+      for (const name of Object.keys(servers)) if (/^[\w-]+$/.test(name)) tools.push(`mcp__${name}__*`);
+    } catch { /* unreadable: no extra tools; the CLI reports the bad file itself */ }
+  }
+  if (env.TERMINUS_CLAUDE_CHROME === "1") tools.push("mcp__claude-in-chrome__*");
+  return tools;
+}
+
 export const CLAUDE_ALLOWED_TOOLS =
   "Bash Edit Write Read Glob Grep WebFetch WebSearch TodoWrite";
 const CLAUDE_DENY_PATHS = [
@@ -259,10 +284,11 @@ export function claudeArgv(args: {
       ? ["--dangerously-skip-permissions"]
       : [
           "--permission-mode", "dontAsk",
-          "--allowedTools", CLAUDE_ALLOWED_TOOLS,
+          "--allowedTools", [CLAUDE_ALLOWED_TOOLS, ...claudeBrowserTools()].join(" "),
           "--disallowedTools", CLAUDE_DISALLOWED_TOOLS.join(" "),
         ]),
   ];
+  argv.push(...claudeBrowserArgs());
   if (args.model) argv.push("--model", args.model);
   if (args.resume) argv.push("--resume", args.resume);
   if (args.resume && args.forkSession) argv.push("--fork-session");

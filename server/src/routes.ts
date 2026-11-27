@@ -22,6 +22,7 @@ import { handleRepoFile, handleRepoTree } from "./media.js";
 import { busyTurns, handleBackends, handleBindings, handleChat, handleCommands, handleCompact, handleContext, handleDefaultsGet, handleDefaultsPost, handleFork, handleHistory, handleModels, handleProgress, handleQueuedCancel, handleSessionDelete, handleSessions, handleSteer, handleStop, handleStream, handleSync, handleTitle, handleTitleSet, handleTurn } from "./opencode-proxy.js";
 import { handlePbCmd, handlePbReply, handlePbStatus, handlePbStream } from "./phone-browser.js";
 import { handleWake } from "./wake.js";
+import { pwaRoutes } from "./pwa/index.js";
 
 export interface RouteContext {
   req: IncomingMessage;
@@ -130,6 +131,7 @@ export const apiRoutes: readonly Route[] = [
   get("/profiles", ({ res }) => handleProfileList(res)),
   post("/profile", ({ req, res }) => handleProfileEnsure(req, res)),
   { method: "DELETE", path: "/profile", prefix: true, handle: ({ req, res }) => handleProfileDelete(req, res) },
+  ...pwaRoutes,
 ];
 
 /** Tried after the gallery and media routes, which also answer GETs for some of these paths. */
