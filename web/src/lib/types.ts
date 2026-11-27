@@ -96,3 +96,14 @@ export interface Goal {
 
 /** Backends this app offers. The server knows more (Codex, Agy); they still work if a chat names them. */
 export const SUPPORTED_BACKENDS = ['claude', 'opencode'] as const;
+
+export interface SigninRequest {
+  id: string;
+  site: string;
+  url: string;
+  reason: string;
+  chatId: string;
+  target: string;
+  at: number;
+  state: 'open' | 'done' | 'cancelled';
+}

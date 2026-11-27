@@ -3,7 +3,7 @@
 import { call } from './api';
 import { openSse } from './sse';
 import { dropChat, loadChats, putChat, useApp } from './store';
-import type { Approval, Chat } from './types';
+import type { Approval, Chat, SigninRequest } from './types';
 
 let link: { close: () => void; kick: () => void } | null = null;
 
@@ -24,6 +24,9 @@ export function startEvents() {
         void call<{ approvals: Approval[] }>('GET', '/api/pwa/approvals')
           .then((r) => useApp.getState().set({ approvals: r.approvals }))
           .catch(() => {});
+        void call<{ requests: SigninRequest[] }>('GET', '/api/pwa/signins')
+          .then((r) => useApp.getState().set({ signins: r.requests }))
+          .catch(() => {});
         sendPresence();
       },
       onDown: () => useApp.getState().set({ online: false }),
@@ -34,6 +37,10 @@ export function startEvents() {
         else if (event === 'approval') {
           const list = useApp.getState().approvals.filter((a) => a.id !== d.id);
           useApp.getState().set({ approvals: [...list, d as Approval] });
+        } else if (event === 'signin') {
+          const r = d as SigninRequest;
+          const rest = useApp.getState().signins.filter((x) => x.id !== r.id);
+          useApp.getState().set({ signins: r.state === 'open' ? [...rest, r] : rest });
         } else if (event === 'approval_cancel') {
           useApp.getState().set({ approvals: useApp.getState().approvals.filter((a) => a.id !== d.id) });
         }

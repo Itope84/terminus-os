@@ -23,6 +23,7 @@ import { busyTurns, handleBackends, handleBindings, handleChat, handleCommands, 
 import { handlePbCmd, handlePbReply, handlePbStatus, handlePbStream } from "./phone-browser.js";
 import { handleWake } from "./wake.js";
 import { pwaRoutes } from "./pwa/index.js";
+import { remoteRoutes } from "./pwa/remote.js";
 
 export interface RouteContext {
   req: IncomingMessage;
@@ -132,6 +133,7 @@ export const apiRoutes: readonly Route[] = [
   post("/profile", ({ req, res }) => handleProfileEnsure(req, res)),
   { method: "DELETE", path: "/profile", prefix: true, handle: ({ req, res }) => handleProfileDelete(req, res) },
   ...pwaRoutes,
+  ...remoteRoutes,
 ];
 
 /** Tried after the gallery and media routes, which also answer GETs for some of these paths. */

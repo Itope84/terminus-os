@@ -12,6 +12,12 @@
  *  POST /api/pwa/push/unsubscribe     {endpoint}
  *  POST /api/pwa/push/test            → {devices, sent, errors}
  *  POST /api/pwa/transcribe           audio body → {text} (transcribe.ts)
+ *  POST /api/pwa/signin               {site, url?, reason?, chatId?} → {id, target?}: an agent needs you to
+ *                                     sign in to a site in the agents' Chrome; the phone is notified
+ *  GET  /api/pwa/signin?id=&wait=S    → {request}: long-polls up to S seconds (max 600) for done/cancelled
+ *  GET  /api/pwa/signins              → {requests}: open ones
+ *  POST /api/pwa/signin/answer        {id, state: done|cancelled}
+ *  /api/remote/*                      the agents' Chrome on the phone (remote.ts)
  */
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { onApproval, pendingApprovals } from "../approvals.js";
@@ -20,6 +26,7 @@ import { scheduleChatOf } from "../inbox.js";
 import type { Route } from "../routes.js";
 import { onWake } from "../wake.js";
 import { push } from "./push.js";
+import { openTab } from "./remote.js";
 import { handleTranscribe } from "./transcribe.js";
 import { chatStore, previewOf, type PwaChat } from "./store.js";
 
@@ -102,6 +109,7 @@ function handleEvents(req: IncomingMessage, res: ServerResponse): void {
   clients.add(c);
   res.write(`: hello ${Date.now()}\n\n`);
   for (const v of pendingApprovals()) res.write(`event: approval\ndata: ${JSON.stringify(v)}\n\n`);
+  for (const r of openSignins()) res.write(`event: signin\ndata: ${JSON.stringify(r)}\n\n`);
   const beat = setInterval(() => {
     try { res.write(`: ping ${Date.now()}\n\n`); } catch { /* close below */ }
   }, 20_000);
@@ -109,6 +117,37 @@ function handleEvents(req: IncomingMessage, res: ServerResponse): void {
   const drop = (): void => { clearInterval(beat); clients.delete(c); };
   req.on("close", drop);
   res.on("error", drop);
+}
+
+export interface SigninRequest {
+  id: string; site: string; url: string; reason: string; chatId: string; target: string;
+  at: number; state: "open" | "done" | "cancelled"; answeredAt?: number;
+}
+const signins = new Map<string, SigninRequest>();
+const signinWaiters = new Map<string, Set<() => void>>();
+const SIGNIN_TTL_MS = 6 * 3600_000;
+export const openSignins = (): SigninRequest[] => [...signins.values()].filter((r) => r.state === "open" && Date.now() - r.at < SIGNIN_TTL_MS);
+const remoteUrl = (r: SigninRequest): string => `/app/remote?req=${encodeURIComponent(r.id)}${r.target ? `&target=${encodeURIComponent(r.target)}` : ""}`;
+
+/** Pure: validate an agent's sign-in request body. */
+export function parseSigninBody(b: Record<string, unknown>): { site: string; url: string; reason: string; chatId: string } | { error: string } {
+  const site = typeof b.site === "string" ? b.site.trim().slice(0, 80) : "";
+  const url = typeof b.url === "string" ? b.url.trim() : "";
+  if (!site && !url) return { error: "site or url required" };
+  if (url && !/^https?:\/\//i.test(url)) return { error: "http(s) url only" };
+  let name = site;
+  if (!name) { try { name = new URL(url).hostname; } catch { return { error: "bad url" }; } }
+  return { site: name, url, reason: typeof b.reason === "string" ? b.reason.trim().slice(0, 300) : "", chatId: typeof b.chatId === "string" ? b.chatId.slice(0, 200) : "" };
+}
+
+function answerSignin(id: string, state: "done" | "cancelled"): SigninRequest | null {
+  const r = signins.get(id);
+  if (!r) return null;
+  if (r.state === "open") Object.assign(r, { state, answeredAt: Date.now() });
+  broadcast("signin", r);
+  for (const fn of signinWaiters.get(id) ?? []) fn();
+  signinWaiters.delete(id);
+  return r;
 }
 
 type Body = Record<string, unknown>;
@@ -159,6 +198,43 @@ export const pwaRoutes: readonly Route[] = [
   { method: "POST", path: "/api/pwa/push/unsubscribe", handle: withBody((b, _req, res) => {
     push().unsubscribe(String(b.endpoint ?? ""));
     return json(res, 200, { ok: true, devices: push().count() });
+  }) },
+  { method: "POST", path: "/api/pwa/signin", handle: withBody(async (b, _req, res) => {
+    const p = parseSigninBody(b);
+    if ("error" in p) return json(res, 400, p);
+    // One open request per site: asking again returns the same one.
+    const dup = openSignins().find((r) => r.site === p.site);
+    if (dup) return json(res, 200, { id: dup.id, target: dup.target, url: remoteUrl(dup) });
+    let target = "";
+    try { target = (await openTab(p.url || "about:blank")).id; } catch { /* Chrome down: still ask */ }
+    const r: SigninRequest = { id: `si-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, ...p, target, at: Date.now(), state: "open" };
+    signins.set(r.id, r);
+    for (const [k, v] of signins) if (Date.now() - v.at > SIGNIN_TTL_MS) signins.delete(k);
+    broadcast("signin", r);
+    void push().notify({ title: `Sign in to ${r.site}`, body: r.reason || "An agent needs you to sign in on the Mac's browser.", url: remoteUrl(r), tag: r.id }).catch(() => {});
+    return json(res, 200, { id: r.id, target, url: remoteUrl(r) });
+  }) },
+  { method: "GET", path: "/api/pwa/signin", handle: async ({ req, res }) => {
+    const q = new URL(req.url || "", "http://x").searchParams;
+    const r = signins.get(q.get("id") ?? "");
+    if (!r) return json(res, 404, { error: "no such request" });
+    const wait = Math.min(600, Math.max(0, Number(q.get("wait")) || 0));
+    if (r.state === "open" && wait > 0) {
+      await new Promise<void>((done) => {
+        const fn = (): void => { clearTimeout(t); done(); };
+        const t = setTimeout(() => { signinWaiters.get(r.id)?.delete(fn); done(); }, wait * 1000);
+        if (!signinWaiters.has(r.id)) signinWaiters.set(r.id, new Set());
+        signinWaiters.get(r.id)!.add(fn);
+        req.on("close", fn);
+      });
+    }
+    return json(res, 200, { request: r });
+  } },
+  { method: "GET", path: "/api/pwa/signins", handle: ({ res }) => json(res, 200, { requests: openSignins() }) },
+  { method: "POST", path: "/api/pwa/signin/answer", handle: withBody((b, _req, res) => {
+    const state = b.state === "cancelled" ? "cancelled" : "done";
+    const r = answerSignin(String(b.id ?? ""), state);
+    return r ? json(res, 200, { request: r }) : json(res, 404, { error: "no such request" });
   }) },
   { method: "POST", path: "/api/pwa/transcribe", handle: ({ req, res }) => handleTranscribe(req, res) },
   { method: "POST", path: "/api/pwa/push/test", handle: async ({ res }) => {

@@ -203,3 +203,18 @@ describe("transcripts", () => {
     assert.equal(cleanTranscript("[BLANK_AUDIO]"), "");
   });
 });
+
+it("sign-in requests: validated, site named from the url", async () => {
+  const { parseSigninBody } = await import("../dist/pwa/index.js");
+  assert.deepEqual(parseSigninBody({ url: "https://accounts.example.com/login", reason: "x" }), { site: "accounts.example.com", url: "https://accounts.example.com/login", reason: "x", chatId: "" });
+  assert.ok("error" in parseSigninBody({}));
+  assert.ok("error" in parseSigninBody({ url: "file:///etc/passwd" }));
+  assert.equal(parseSigninBody({ site: "Amazon" }).site, "Amazon");
+});
+
+it("remote taps: fractions map onto the page, bad points refused", async () => {
+  const { tapPoint } = await import("../dist/pwa/remote.js");
+  assert.deepEqual(tapPoint(0.5, 0.25, { w: 390, h: 800 }), { x: 195, y: 200 });
+  assert.equal(tapPoint(1.2, 0, { w: 390, h: 800 }), null);
+  assert.equal(tapPoint("x", 0, { w: 390, h: 800 }), null);
+});

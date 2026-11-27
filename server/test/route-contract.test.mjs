@@ -41,6 +41,15 @@ const GATED = [
   ["GET", "/api/pwa/events"], ["POST", "/api/pwa/presence"], ["GET", "/api/pwa/approvals"], ["GET", "/api/pwa/push"],
   ["POST", "/api/pwa/push/subscribe"], ["POST", "/api/pwa/push/unsubscribe"], ["POST", "/api/pwa/push/test"],
   ["POST", "/api/pwa/transcribe"],
+  ["POST", "/api/pwa/signin"],
+  ["GET", "/api/pwa/signin"],
+  ["GET", "/api/pwa/signins"],
+  ["POST", "/api/pwa/signin/answer"],
+  ["GET", "/api/remote/tabs"],
+  ["POST", "/api/remote/open"],
+  ["POST", "/api/remote/close"],
+  ["GET", "/api/remote/stream"],
+  ["POST", "/api/remote/input"],
 ];
 
 /** Gated routes served by the media module and the two late browser GETs. */

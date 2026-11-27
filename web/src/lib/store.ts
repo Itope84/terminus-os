@@ -2,7 +2,7 @@
 // (/api/pwa/chats), kept live by /api/pwa/events (events.ts), and cached for an offline launch.
 import { create } from 'zustand';
 import { ApiError, call } from './api';
-import type { Approval, Backend, Chat } from './types';
+import type { Approval, Backend, Chat, SigninRequest } from './types';
 
 const CACHE_KEY = 'terminus.chats.v1';
 
@@ -40,6 +40,8 @@ interface AppState {
   online: boolean;
   chats: Record<string, Chat>;
   approvals: Approval[];
+  /** Sites an agent is waiting for you to sign in to (in the Mac's browser). */
+  signins: SigninRequest[];
   backends: Backend[];
   defaults: Defaults | null;
   /** The chat on screen, for presence (no push for what you're looking at). */
@@ -53,6 +55,7 @@ export const useApp = create<AppState>((set) => ({
   online: false,
   chats: typeof localStorage === 'undefined' ? {} : cachedChats(),
   approvals: [],
+  signins: [],
   backends: [],
   defaults: null,
   openChat: '',

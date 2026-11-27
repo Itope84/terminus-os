@@ -91,6 +91,7 @@ export default function Chats() {
   const chats = useApp((s) => s.chats);
   const online = useApp((s) => s.online);
   const backends = useApp((s) => s.backends);
+  const signins = useApp((s) => s.signins);
   const [filter, setFilter] = useState<Filter>('recent');
   const [q, setQ] = useState('');
   const [menu, setMenu] = useState<Chat | null>(null);
@@ -148,9 +149,16 @@ export default function Chats() {
       <div className="bar">
         <h1>Terminus</h1>
         <span className={`dot ${online ? 'ok' : 'bad'}`} title={online ? 'Connected to the Mac' : 'Can’t reach the Mac'} />
+        <button type="button" className="icon" aria-label="Mac browser" onClick={() => router.push('/remote')}>🌐</button>
         <button type="button" className="icon" aria-label="Settings" onClick={() => router.push('/settings')}>⚙︎</button>
       </div>
       {!online ? <div className="banner warn">Can’t reach the Mac. Is Tailscale on? Messages you send will wait.</div> : null}
+      {signins.map((r) => (
+        <div key={r.id} className="banner warn">
+          <span style={{ flex: 1 }}>An agent needs you to sign in to <b>{r.site}</b></span>
+          <button type="button" onClick={() => router.push(`/remote?req=${encodeURIComponent(r.id)}${r.target ? `&target=${encodeURIComponent(r.target)}` : ''}` as never)}>Sign in</button>
+        </div>
+      ))}
       {waiting ? <div className="banner">{waiting} message{waiting === 1 ? '' : 's'} waiting to send</div> : null}
       {push !== 'on' && push !== 'unsupported' ? (
         <div className="banner">
