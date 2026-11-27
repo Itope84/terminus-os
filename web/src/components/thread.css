@@ -1,0 +1,51 @@
+.thread { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 12px 8px; font: 16px/1.45 -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; color: var(--ink); overscroll-behavior: contain; }
+.thread * { box-sizing: border-box; }
+.day { text-align: center; color: var(--faint); font-size: 12px; margin: 14px 0 8px; }
+.row { display: flex; flex-direction: column; margin: 6px 0 10px; }
+.row.user { align-items: flex-end; }
+.bubble { max-width: 86%; padding: 9px 13px; border-radius: 18px; background: var(--userBg); color: var(--userText); white-space: pre-wrap; word-wrap: break-word; }
+.bubble .files { font-size: 13px; opacity: .8; margin-top: 4px; }
+.meta { font-size: 12px; color: var(--faint); margin-top: 3px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.meta button, .act { background: none; border: 0; padding: 4px 0; color: var(--link); font: inherit; font-size: 13px; cursor: pointer; }
+.meta .bad { color: var(--err); }
+.reply { max-width: 100%; word-wrap: break-word; overflow-wrap: anywhere; }
+.reply p { margin: 0 0 .6em; }
+.reply p:last-child { margin-bottom: 0; }
+.reply h1, .reply h2, .reply h3, .reply h4 { margin: .8em 0 .35em; line-height: 1.25; }
+.reply h1 { font-size: 1.3em; } .reply h2 { font-size: 1.18em; } .reply h3 { font-size: 1.06em; } .reply h4 { font-size: 1em; }
+.reply ul, .reply ol { margin: .3em 0 .6em; padding-left: 1.35em; }
+.reply li { margin: .15em 0; }
+.reply a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+.reply blockquote { margin: .5em 0; padding: 2px 0 2px 12px; border-left: 3px solid var(--line); color: var(--quote); }
+.reply code { font: 14px ui-monospace, 'SF Mono', Menlo, monospace; background: var(--chip); padding: 1px 4px; border-radius: 5px; }
+.reply .code { margin: .5em 0; border-radius: 10px; overflow: hidden; background: var(--codeBg); }
+.reply .codebar { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; font-size: 12px; color: var(--codeText); opacity: .75; }
+.reply .codebar button { background: none; border: 0; color: inherit; font: inherit; padding: 4px; cursor: pointer; }
+.reply pre { margin: 0; padding: 4px 12px 12px; overflow-x: auto; color: var(--codeText); }
+.reply pre code { background: none; padding: 0; font-size: 13px; line-height: 1.5; color: inherit; }
+.reply table { border-collapse: collapse; display: block; overflow-x: auto; margin: .5em 0; font-size: 14px; }
+.reply th, .reply td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+.reply img, .reply video { max-width: 100%; border-radius: 10px; display: block; margin: .4em 0; }
+.reply hr { border: 0; border-top: 1px solid var(--line); margin: 1em 0; }
+.mapcard { height: 240px; border-radius: 12px; overflow: hidden; margin: .5em 0; background: var(--chip); }
+.mapask { margin: 4px 0 8px; background: var(--chip); color: var(--ink); border: 0; border-radius: 14px; padding: 6px 12px; font: inherit; font-size: 13px; }
+.steps { margin: 0 0 6px; font-size: 13px; color: var(--muted); }
+.steps summary { cursor: pointer; list-style: none; padding: 2px 0; }
+.steps summary::-webkit-details-marker { display: none; }
+.steps summary::before { content: '›'; display: inline-block; width: 12px; transition: transform .15s; }
+.steps[open] summary::before { transform: rotate(90deg); }
+.step { padding: 3px 0 3px 12px; border-left: 2px solid var(--line); margin-left: 4px; }
+.step .d { color: var(--faint); font: 12px ui-monospace, Menlo, monospace; white-space: pre-wrap; word-break: break-all; display: block; max-height: 4.5em; overflow: hidden; }
+.step.fail { color: var(--err); }
+.live { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 8px; margin: 2px 0 6px; }
+.dots { display: inline-flex; gap: 3px; }
+.dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite ease-in-out; }
+.dots i:nth-child(2) { animation-delay: .2s; } .dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+.cursor::after { content: '▍'; animation: blink 1s infinite; color: var(--muted); }
+.inbox { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.inbox .t { font-weight: 600; margin-bottom: 4px; }
+.error { color: var(--err); background: var(--surface); border-left: 3px solid var(--err); padding: 8px 12px; border-radius: 6px; font-size: 14px; white-space: pre-wrap; }
+.note { text-align: center; color: var(--faint); font-size: 12px; margin: 8px 0; }
+.empty { text-align: center; color: var(--faint); margin-top: 30vh; font-size: 15px; padding: 0 24px; }
+.quotebtn { position: fixed; z-index: 30; background: var(--ink); color: var(--window); border: 0; border-radius: 16px; padding: 7px 14px; font: 14px -apple-system, system-ui, sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,.25); }

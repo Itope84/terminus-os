@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Terminus",
+    "slug": "terminus",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "terminus",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#1A1712",
+    "web": {
+      "output": "single",
+      "bundler": "metro",
+      "name": "Terminus",
+      "shortName": "Terminus",
+      "themeColor": "#1A1712",
+      "backgroundColor": "#1A1712",
+      "display": "standalone"
+    },
+    "plugins": ["expo-router", "expo-font"],
+    "experiments": { "typedRoutes": false, "baseUrl": "/app" },
+    "icon": "./public/icon-512.png"
+  }
+}
