@@ -1,6 +1,7 @@
 // Chats: needs-you first, then pinned, then by day. Filters: Recent, Unread, Schedules, Archived.
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
+import { Icon } from '../../components/Icon';
 import { Opt, Sheet } from '../../components/Sheet';
 import { call } from '../../lib/api';
 import { newChatId } from '../../lib/ids';
@@ -149,8 +150,8 @@ export default function Chats() {
       <div className="bar">
         <h1>Terminus</h1>
         <span className={`dot ${online ? 'ok' : 'bad'}`} title={online ? 'Connected to the Mac' : 'Can’t reach the Mac'} />
-        <button type="button" className="icon" aria-label="Mac browser" onClick={() => router.push('/remote')}>🌐</button>
-        <button type="button" className="icon" aria-label="Settings" onClick={() => router.push('/settings')}>⚙︎</button>
+        <button type="button" className="icon" aria-label="Mac browser" onClick={() => router.push('/remote')}><Icon name="globe" /></button>
+        <button type="button" className="icon" aria-label="Settings" onClick={() => router.push('/settings')}><Icon name="gear" /></button>
       </div>
       {!online ? <div className="banner warn">Can’t reach the Mac. Is Tailscale on? Messages you send will wait.</div> : null}
       {signins.map((r) => (
