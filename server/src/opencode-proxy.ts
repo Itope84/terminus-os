@@ -602,9 +602,35 @@ export async function fetchOpencodeModels(): Promise<ModelEntry[]> {
     ]);
   });
   void _providers;
-  return mapOpencodeModels(
-    (models as { data?: Array<{ providerID: string; modelID: string; name?: string }> }).data ?? [],
-  );
+  const rows = (models as { data?: unknown }).data;
+  const listed = Array.isArray(rows) ? mapOpencodeModels(rows) : [];
+  if (listed.length) return listed;
+  // OpenCode 1.x has no model.list route (the path falls through to its web UI, so the SDK reads
+  // nothing usable). Its connected providers and their models are at /config/providers.
+  return mapOpencodeModels(rowsFromConfigProviders(await fetchConfigProviders()));
+}
+
+async function fetchConfigProviders(): Promise<unknown> {
+  return withDeadline("providers", MODELS_DEADLINE_MS, async (signal) => {
+    const r = await fetch(`${baseUrl()}/config/providers?directory=${encodeURIComponent(locationDir())}`, { headers: authHeaders(), signal });
+    if (!r.ok) throw new Error(`opencode /config/providers ${r.status}`);
+    return r.json();
+  });
+}
+
+/** Pure: /config/providers {providers:[{id, models:{id:{id,name}}}]} → model.list-shaped rows. */
+export function rowsFromConfigProviders(body: unknown): Array<{ providerID: string; modelID: string; name?: string }> {
+  const out: Array<{ providerID: string; modelID: string; name?: string }> = [];
+  const providers = (body as { providers?: unknown })?.providers;
+  if (!Array.isArray(providers)) return out;
+  for (const p of providers as Array<{ id?: unknown; models?: unknown }>) {
+    if (typeof p?.id !== "string" || !p.models || typeof p.models !== "object") continue;
+    for (const [key, m] of Object.entries(p.models as Record<string, { id?: unknown; name?: unknown }>)) {
+      const modelID = typeof m?.id === "string" && m.id ? m.id : key;
+      out.push({ providerID: p.id, modelID, name: typeof m?.name === "string" ? m.name : undefined });
+    }
+  }
+  return out;
 }
 
 /** GET /api/models — provider.list + model.list merged to provider/model refs.
