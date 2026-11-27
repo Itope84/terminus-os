@@ -123,6 +123,23 @@ Away from your Wi-Fi, your phone needs a route to the server. The simplest is [T
 
 Any other VPN or tunnel works the same way, as long as your phone can reach port 9009. Do not expose the server to the public internet.
 
+## iPhone: the home-screen web app
+
+`web/` is the iPhone version: an Expo web app the server serves at `/app`, installed from Safari with Share → Add to Home Screen. It has chats with live replies, steps, stop and steer, queued and offline messages, model and effort, goals, context and compact; approvals from any screen; notifications with the app closed (Web Push); Echo voice notes saved to the Mac with transcription (whisper.cpp); and Notes, Files and Ops.
+
+iPhone needs HTTPS for notifications and the microphone, so the server also listens on `TERMINUS_TLS_PORT` (default 9443) with a certificate you give it in `TERMINUS_TLS_CERT` and `TERMINUS_TLS_KEY`. A Tailscale certificate (`tailscale cert`) works. Keep it on your tailnet; don't put it on a public hostname.
+
+```
+cd web && pnpm install && pnpm build      # → web/dist, served at /app
+pnpm dev                                  # Expo on :9010 for UI work
+tools/terminus-server/install.sh          # the server as a login item, settings in ~/.config/terminus/server.env
+tools/chrome-agent/install.sh             # the agents' own Chrome for Chrome DevTools MCP (127.0.0.1:9222)
+```
+
+Sign in once with the server token (`cat ~/.config/terminus/browser/token`); the phone keeps a year-long cookie. Speech to text needs `whisper-cli`, a model at `~/.cache/whisper/ggml-base.en.bin` (or `TERMINUS_WHISPER_MODEL`), and `ffmpeg`.
+
+Browser use, in order: headless Playwright on the Mac, then the agents' Chrome through Chrome DevTools MCP (`TERMINUS_CLAUDE_MCP_CONFIG=server/mcp/claude-browser.json`; add the same server to OpenCode's config), then Claude in Chrome (`TERMINUS_CLAUDE_CHROME=1`, Claude only). See AGENTS.md.
+
 ## Agent skills
 
 A skill is a directory with a `SKILL.md` that tells an agent when and how to use it:
