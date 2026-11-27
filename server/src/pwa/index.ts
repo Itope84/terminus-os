@@ -11,6 +11,7 @@
  *  POST /api/pwa/push/subscribe       {subscription, label?}
  *  POST /api/pwa/push/unsubscribe     {endpoint}
  *  POST /api/pwa/push/test            → {devices, sent, errors}
+ *  POST /api/pwa/transcribe           audio body → {text} (transcribe.ts)
  */
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { onApproval, pendingApprovals } from "../approvals.js";
@@ -19,6 +20,7 @@ import { scheduleChatOf } from "../inbox.js";
 import type { Route } from "../routes.js";
 import { onWake } from "../wake.js";
 import { push } from "./push.js";
+import { handleTranscribe } from "./transcribe.js";
 import { chatStore, previewOf, type PwaChat } from "./store.js";
 
 interface EventClient { res: ServerResponse; visible: boolean; chatId: string; seen: number }
@@ -158,6 +160,7 @@ export const pwaRoutes: readonly Route[] = [
     push().unsubscribe(String(b.endpoint ?? ""));
     return json(res, 200, { ok: true, devices: push().count() });
   }) },
+  { method: "POST", path: "/api/pwa/transcribe", handle: ({ req, res }) => handleTranscribe(req, res) },
   { method: "POST", path: "/api/pwa/push/test", handle: async ({ res }) => {
     const r = await push().notify({ title: "Terminus", body: "Notifications work.", url: "/app/" });
     return json(res, 200, r);

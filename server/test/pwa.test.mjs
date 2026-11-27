@@ -14,6 +14,7 @@ const { ChatStore, previewOf } = await import("../dist/pwa/store.js");
 const { Push } = await import("../dist/pwa/push.js");
 const { appFileFor, handleApp } = await import("../dist/pwa/static.js");
 const { tlsConfig } = await import("../dist/tls.js");
+const { cleanTranscript } = await import("../dist/pwa/transcribe.js");
 const { claudeBrowserArgs, claudeBrowserTools, claudeArgv } = await import("../dist/backends/claude.js");
 
 describe("chat index", () => {
@@ -192,5 +193,13 @@ describe("claude browser tiers", () => {
     } finally {
       delete process.env.TERMINUS_CLAUDE_CHROME;
     }
+  });
+});
+
+describe("transcripts", () => {
+  it("joins segments and drops blank markers", () => {
+    assert.equal(cleanTranscript(" Hello there.\n [BLANK_AUDIO]\n  How are you?\n"), "Hello there. How are you?");
+    assert.equal(cleanTranscript("[00:00:00.000 --> 00:00:02.000]  Hi\n"), "Hi");
+    assert.equal(cleanTranscript("[BLANK_AUDIO]"), "");
   });
 });

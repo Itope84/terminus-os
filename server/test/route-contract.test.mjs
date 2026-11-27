@@ -40,6 +40,7 @@ const GATED = [
   ["GET", "/api/pwa/chats"], ["POST", "/api/pwa/chats"], ["POST", "/api/pwa/chats/read"], ["POST", "/api/pwa/chats/delete"],
   ["GET", "/api/pwa/events"], ["POST", "/api/pwa/presence"], ["GET", "/api/pwa/approvals"], ["GET", "/api/pwa/push"],
   ["POST", "/api/pwa/push/subscribe"], ["POST", "/api/pwa/push/unsubscribe"], ["POST", "/api/pwa/push/test"],
+  ["POST", "/api/pwa/transcribe"],
 ];
 
 /** Gated routes served by the media module and the two late browser GETs. */
